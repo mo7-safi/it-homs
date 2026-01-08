@@ -7,6 +7,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
+
+            /* تنسيق قسم روابط التواصل الرسمي */
+.social-section {
+    max-width: 92%;
+    margin: 30px auto;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.social-section h4 {
+    margin-bottom: 20px;
+    font-weight: 900;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* جعلها في صفين لتناسب الموبايل */
+    gap: 12px;
+}
+
+.social-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+/* ألوان الأزرار بتدرجات متناسقة */
+.btn-bot { background: linear-gradient(135deg, #00b894, #55efc4); } /* أخضر للبوت */
+.btn-group { background: linear-gradient(135deg, #0984e3, #74b9ff); } /* أزرق للكروب */
+.btn-lectures { background: linear-gradient(135deg, #6c5ce7, #a29bfe); } /* بنفسجي للمحاضرات */
+.btn-ads { background: linear-gradient(135deg, #d63031, #ff7675); } /* أحمر للإعلانات */
+
+.social-btn:active { transform: scale(0.95); }
+.social-icon { font-size: 1.5rem; margin-bottom: 5px; }
+
+@media (max-width: 480px) {
+    .social-section { padding: 15px; }
+    .social-btn { font-size: 0.75rem; }
+}
             /* الألوان الأساسية للموقع */
             --bg-color: #f8faff; 
             --card-bg: #ffffff;
@@ -292,6 +344,22 @@
     </div>
 
     <footer>
+        <div class="social-section">
+        <div class="social-grid">
+            <a href="https://t.me/IT_Homs_Lectures_Bot" class="social-btn btn-bot" target="_blank">
+                <span class="social-icon">🤖</span> بوت المحاضرات
+            </a>
+            <a href="https://t.me/+XyKvv4gxdD9kMDc0" class="social-btn btn-group" target="_blank">
+                <span class="social-icon">👥</span> كروب الدفعة
+            </a>
+            <a href="https://t.me/+0T6nH5iRlsJjNTg0" class="social-btn btn-lectures" target="_blank">
+                <span class="social-icon">📚</span> قناة المحاضرات
+            </a>
+            <a href="https://t.me/ITE_N_HOMS" class="social-btn btn-ads" target="_blank">
+                <span class="social-icon">📢</span> قناة الإعلانات
+            </a>
+        </div>
+    </div>
         <p class="footer-text">تم التطوير بواسطة مُحمد صافي</p>
         <div class="contact-section">
             <a href="https://t.me/Mo7_99" class="tg-link">@Mo7_99</a>
@@ -322,6 +390,7 @@
     </script>
 </body>
 </html>
+
 
 
 
