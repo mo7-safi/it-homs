@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>تطبيق تعلم مايكروسوفت إكسل 2016</title> <!-- Tailwind CSS --> <script src="https://cdn.tailwindcss.com"></script> <!-- Chart.js --> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- FontAwesome --> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Chosen Palette: Excel Professional -->
+<!-- Primary: #217346 (Excel Green), Background: #F3F4F6 (Light Gray), Text: #1F2937 (Dark Gray) -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    excel: {
+                        light: '#43a047',
+                        DEFAULT: '#217346',
+                        dark: '#1a5c38',
+                    }
+                },
+                fontFamily: {
+                    sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+                }
+            }
+        }
+    }
+</script>
+<style>
+    .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        height: 300px;
+        max-height: 400px;
+    }
+    .excel-grid-mockup {
+        display: grid;
+        grid-template-columns: 40px repeat(4, 1fr);
+        grid-template-rows: 30px repeat(4, 40px);
+        gap: 1px;
+        background-color: #e5e7eb;
+        border: 1px solid #d1d5db;
+    }
+    .excel-cell {
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .excel-cell:hover {
+        background-color: #f0fdf4;
+        border: 1px solid #217346;
+    }
+    .excel-header {
+        background-color: #f3f4f6;
+        font-weight: bold;
+        color: #4b5563;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+    }
+</style>
+</head> <body class="bg-gray-50 text-gray-800 font-sans leading-relaxed overflow-x-hidden">
+
+<!-- Application Structure Plan: 
+     Layout: Sidebar navigation (collapsible on mobile) + Main Content Area.
+     Sections: 
+        1. Dashboard/Home: Quick overview & Start button.
+        2. Interface Explorer: Interactive visual grid to explain UI parts.
+        3. Data Lab: Interactive Chart.js visualization of Data Types & Input Rules.
+        4. Operations Hub: Tabbed interface for File Ops, Selection, Formatting.
+        5. Shortcuts Master: Filterable list of all shortcuts.
+     Interaction: Clicking nav items updates main view. Clicking chart segments shows details. 
+     Rationale: Breaking the lecture into functional areas (Visual, Data, Action) makes it easier to digest than linear text.
+-->
+
+<div id="app" class="min-h-screen flex flex-col md:flex-row">
+    
+    <!-- Sidebar Navigation -->
+    <nav class="bg-white border-l border-gray-200 w-full md:w-64 flex-shrink-0 md:h-screen sticky top-0 z-50 shadow-sm">
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-excel text-white md:bg-white md:text-excel">
+            <div class="font-bold text-xl flex items-center gap-2">
+                <i class="fas fa-file-excel text-2xl"></i>
+                <span>متقن الإكسل</span>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div id="nav-links" class="hidden md:block p-4 space-y-2 overflow-y-auto h-[calc(100vh-70px)]">
+            <button onclick="navigate('home')" class="nav-item w-full text-right px-4 py-3 rounded-lg hover:bg-green-50 hover:text-excel font-medium transition-colors flex items-center gap-3 bg-green-50 text-excel" data-target="home">
+                <i class="fas fa-home w-6 text-center"></i> الرئيسية
+            </button>
+            <button onclick="navigate('interface')" class="nav-item w-full text-right px-4 py-3 rounded-lg hover:bg-green-50 hover:text-excel font-medium transition-colors flex items-center gap-3" data-target="interface">
+                <i class="fas fa-columns w-6 text-center"></i> واجهة البرنامج
+            </button>
+            <button onclick="navigate('data')" class="nav-item w-full text-right px-4 py-3 rounded-lg hover:bg-green-50 hover:text-excel font-medium transition-colors flex items-center gap-3" data-target="data">
+                <i class="fas fa-database w-6 text-center"></i> البيانات والإدخال
+            </button>
+            <button onclick="navigate('operations')" class="nav-item w-full text-right px-4 py-3 rounded-lg hover:bg-green-50 hover:text-excel font-medium transition-colors flex items-center gap-3" data-target="operations">
+                <i class="fas fa-tools w-6 text-center"></i> العمليات والتنسيق
+            </button>
+            <button onclick="navigate('files')" class="nav-item w-full text-right px-4 py-3 rounded-lg hover:bg-green-50 hover:text-excel font-medium transition-colors flex items-center gap-3" data-target="files">
+                <i class="fas fa-folder-open w-6 text-center"></i> إدارة الملفات
+            </button>
+            <button onclick="navigate('shortcuts')" class="nav-item w-full text-right px-4 py-3 rounded-lg hover:bg-green-50 hover:text-excel font-medium transition-colors flex items-center gap-3" data-target="shortcuts">
+                <i class="fas fa-keyboard w-6 text-center"></i> الاختصارات
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-50 md:h-screen">
+        
+        <!-- VIEW: HOME -->
+        <section id="view-home" class="view-section space-y-6 animate-fade-in">
+            <header class="bg-gradient-to-l from-excel to-excel-light text-white p-8 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <h1 class="text-3xl font-bold mb-2">المحاضرة الثالثة: مبادئ عمل إكسل 2016</h1>
+                    <p class="text-green-100 text-lg max-w-2xl">دليلك التفاعلي لإتقان أساسيات الجداول الإلكترونية، من الواجهة إلى إدارة البيانات.</p>
+                    <button onclick="navigate('interface')" class="mt-6 bg-white text-excel font-bold py-2 px-6 rounded-full hover:bg-green-50 transition transform hover:scale-105 shadow-md">
+                        ابدأ التعلم <i class="fas fa-arrow-left mr-2"></i>
+                    </button>
+                </div>
+                <i class="fas fa-file-excel absolute -bottom-10 -left-10 text-9xl text-white opacity-20 transform rotate-12"></i>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature Cards -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-green-100 text-excel rounded-lg flex items-center justify-center mb-4 text-xl">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">طريقة التشغيل</h3>
+                    <p class="text-gray-600 text-sm mb-3">ابدأ > كل البرامج > Microsoft Office > Microsoft Excel</p>
+                    <div class="text-xs bg-gray-100 inline-block px-2 py-1 rounded text-gray-500">اسم الملف الافتراضي: المصنف 1</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">أنواع الملفات</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li class="flex items-center justify-between">
+                            <span>مصنف عادي</span>
+                            <span class="font-mono bg-blue-50 px-2 py-0.5 rounded text-blue-700">.xlsx</span>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>قالب إكسل</span>
+                            <span class="font-mono bg-blue-50 px-2 py-0.5 rounded text-blue-700">.xltx</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">نصيحة سريعة</h3>
+                    <p class="text-gray-600 text-sm">
+                        يتعامل Excel مع التواريخ كأرقام. الرقم 1 يعادل التاريخ 1/1/1900.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: INTERFACE -->
+        <section id="view-interface" class="view-section hidden space-y-6">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 border-r-4 border-excel pr-3">استكشاف الواجهة</h2>
+                <p class="text-gray-600">مرر الفأرة فوق أجزاء الواجهة لمعرفة وظائفها.</p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Interactive Visual Mockup -->
+                <div class="flex-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex flex-col gap-2 relative">
+                        <!-- Command Bar -->
+                        <div class="bg-excel text-white p-2 rounded flex justify-between items-center cursor-help transition hover:bg-excel-dark group" onmouseover="showInfo('command')" onclick="showInfo('command')">
+                            <div class="flex gap-3 text-sm">
+                                <i class="fas fa-save"></i>
+                                <i class="fas fa-undo"></i>
+                                <i class="fas fa-redo"></i>
+                            </div>
+                            <span class="text-xs opacity-75 group-hover:opacity-100">شريط الأوامر (Command Bar)</span>
+                        </div>
+
+                        <!-- Ribbons -->
+                        <div class="bg-gray-100 p-2 rounded flex gap-4 text-sm border-b cursor-help hover:bg-gray-200" onmouseover="showInfo('ribbon')" onclick="showInfo('ribbon')">
+                            <span class="text-excel font-bold border-b-2 border-excel">الصفحة الرئيسية</span>
+                            <span>إدراج</span>
+                            <span>تخطيط الصفحة</span>
+                            <span>صيغ</span>
+                        </div>
+
+                        <!-- Tools Area -->
+                        <div class="bg-gray-50 p-3 border rounded h-16 flex items-center justify-center text-gray-400 text-sm italic cursor-help hover:bg-gray-100" onmouseover="showInfo('tools')" onclick="showInfo('tools')">
+                            منطقة الأدوات (Tools)
+                        </div>
+
+                        <!-- Formula Bar -->
+                        <div class="flex gap-2 items-center cursor-help" onmouseover="showInfo('formula')" onclick="showInfo('formula')">
+                            <span class="text-gray-500 font-serif italic">fx</span>
+                            <div class="bg-white border w-full p-1 rounded h-8 shadow-inner"></div>
+                        </div>
+
+                        <!-- Worksheet Grid -->
+                        <div class="excel-grid-mockup mt-2 cursor-help" onmouseover="showInfo('worksheet')" onclick="showInfo('worksheet')">
+                            <!-- Header Row -->
+                            <div class="excel-cell excel-header"></div>
+                            <div class="excel-cell excel-header">A</div>
+                            <div class="excel-cell excel-header">B</div>
+                            <div class="excel-cell excel-header">C</div>
+                            <div class="excel-cell excel-header">D</div>
+                            <!-- Row 1 -->
+                            <div class="excel-cell excel-header">1</div>
+                            <div class="excel-cell text-excel font-bold border-2 border-excel relative">
+                                A1
+                                <div class="absolute bottom-0 right-0 w-2 h-2 bg-excel cursor-crosshair" title="مقبض التعبئة"></div>
+                            </div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <!-- Row 2 -->
+                            <div class="excel-cell excel-header">2</div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <!-- Row 3 -->
+                            <div class="excel-cell excel-header">3</div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <!-- Row 4 -->
+                            <div class="excel-cell excel-header">4</div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                            <div class="excel-cell"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Panel -->
+                <div class="lg:w-1/3 bg-white p-6 rounded-xl shadow-lg border-t-4 border-excel">
+                    <div id="interface-info-content">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3" id="info-title">مرحباً بك في واجهة إكسل</h3>
+                        <p class="text-gray-600 mb-4" id="info-desc">
+                            انقر فوق أي عنصر في الرسم التوضيحي لمعرفة تفاصيله ووظيفته. تتكون الواجهة من عدة أشرطة وأدوات تساعدك على إدارة البيانات بكفاءة.
+                        </p>
+                        <div id="info-extra" class="bg-green-50 p-3 rounded text-sm text-excel-dark hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: DATA -->
+        <section id="view-data" class="view-section hidden space-y-6">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 border-r-4 border-excel pr-3">إدخال البيانات وأنواعها</h2>
+                <p class="text-gray-600">افهم أنواع البيانات المختلفة وكيفية التعامل معها في إكسل.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart Column -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-bold mb-4 text-center">أنواع البيانات في الخلايا</h3>
+                    <!-- Visualization & Content Choices: 
+                         Goal: Inform about Data Types.
+                         Method: Doughnut Chart.
+                         Interaction: Click slice to update detail text.
+                         Rationale: Visualizes the categorization clearly. 
+                    -->
+                    <div class="chart-container">
+                        <canvas id="dataTypesChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-500 mt-4">انقر على أقسام المخطط لعرض التفاصيل</p>
+                </div>
+
+                <!-- Details Column -->
+                <div class="space-y-6">
+                    <!-- Dynamic Info Box -->
+                    <div id="data-type-details" class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 h-full">
+                        <h4 class="text-xl font-bold mb-2 text-gray-800" id="dt-title">اضغط على المخطط</h4>
+                        <p class="text-gray-600 mb-4" id="dt-desc">استكشف أنواع البيانات مثل الأرقام، النصوص، التواريخ، والأخطاء.</p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h5 class="font-bold text-sm mb-2 text-gray-700">مثال / قاعدة:</h5>
+                            <p id="dt-example" class="font-mono text-sm text-blue-600">...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Rules Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-2 mb-2 text-excel">
+                        <i class="fas fa-keyboard"></i>
+                        <h4 class="font-bold">التنقل</h4>
+                    </div>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li><strong class="text-gray-800">Enter:</strong> للأسفل</li>
+                        <li><strong class="text-gray-800">Tab:</strong> لليسار</li>
+                        <li><strong class="text-gray-800">Alt+Enter:</strong> سطر جديد بالخلية</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-2 mb-2 text-purple-600">
+                        <i class="fas fa-clock"></i>
+                        <h4 class="font-bold">التواريخ والأوقات</h4>
+                    </div>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li><strong class="text-gray-800">Ctrl + ;</strong> التاريخ الحالي</li>
+                        <li><strong class="text-gray-800">Ctrl + Shift + ;</strong> الوقت الحالي</li>
+                        <li class="text-xs text-red-500">ملاحظة: التاريخ يُخزن كرقم تسلسلي.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-2 mb-2 text-orange-500">
+                        <i class="fas fa-magic"></i>
+                        <h4 class="font-bold">التعبئة التلقائية</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">استخدم <strong>مقبض التعبئة</strong> (المربع الأسود الصغير) لتكرار القيم أو إكمال السلاسل (مثل: السبت، الأحد...).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: OPERATIONS -->
+        <section id="view-operations" class="view-section hidden space-y-6">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 border-r-4 border-excel pr-3">العمليات والتنسيق</h2>
+                <p class="text-gray-600">أدوات التحكم في الخلايا، الصفوف، والأعمدة.</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex flex-wrap gap-2 border-b border-gray-200 mb-6">
+                <button class="op-tab px-4 py-2 text-sm font-medium text-excel border-b-2 border-excel" onclick="switchOpTab('selection', this)">مهارات التحديد</button>
+                <button class="op-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-excel" onclick="switchOpTab('sizing', this)">الحجم والإخفاء</button>
+                <button class="op-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-excel" onclick="switchOpTab('merge', this)">الدمج والتعليقات</button>
+                <button class="op-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-excel" onclick="switchOpTab('conditional', this)">التنسيق الشرطي</button>
+            </div>
+
+            <div id="op-content-selection" class="op-content animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+                        <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-mouse-pointer text-blue-500"></i> طرق التحديد الأساسية</h3>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li class="flex items-start gap-2"><span class="bg-gray-100 px-2 rounded font-mono text-xs mt-1">Ctrl + A</span> تحديد الورقة بالكامل.</li>
+                            <li class="flex items-start gap-2"><span class="bg-gray-100 px-2 rounded font-mono text-xs mt-1">Shift + Arrows</span> تحديد نطاق متصل.</li>
+                            <li class="flex items-start gap-2"><span class="bg-gray-100 px-2 rounded font-mono text-xs mt-1">Ctrl + Click</span> تحديد خلايا متباعدة (غير متصلة).</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+                        <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-bolt text-yellow-500"></i> تحديد سريع</h3>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li class="flex items-start gap-2"><span class="bg-gray-100 px-2 rounded font-mono text-xs mt-1">Ctrl + Home</span> الانتقال لأول خلية (A1).</li>
+                            <li class="flex items-start gap-2"><span class="bg-gray-100 px-2 rounded font-mono text-xs mt-1">Ctrl + End</span> الانتقال لآخر خلية مستخدمة.</li>
+                            <li class="flex items-start gap-2"><span class="bg-gray-100 px-2 rounded font-mono text-xs mt-1">Ctrl + Shift + Arrows</span> تحديد البيانات حتى النهاية.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="op-content-sizing" class="op-content hidden animate-fade-in">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-bold text-lg mb-3">التحكم في الأبعاد</h3>
+                            <p class="text-gray-600 text-sm mb-4">يمكن تغيير عرض العمود أو ارتفاع الصف يدوياً أو تلقائياً.</p>
+                            <div class="bg-blue-50 p-4 rounded border border-blue-100 text-sm">
+                                <strong>احتواء تلقائي (AutoFit):</strong> <br>
+                                من تبويب (الصفحة الرئيسية > تنسيق > احتواء تلقائي) لضبط الحجم ليناسب المحتوى تماماً.
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-3">الإخفاء والإظهار</h3>
+                            <p class="text-gray-600 text-sm mb-4">لإخفاء بيانات دون حذفها.</p>
+                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+                                <li>يمكن جعل العرض/الارتفاع صفراً للإخفاء.</li>
+                                <li>للإظهار: حدد الصفوف/الأعمدة <strong>المحيطة</strong> بالجزء المخفي ثم اختر "إظهار".</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="op-content-merge" class="op-content hidden animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-purple-500 shadow-sm">
+                        <h3 class="font-bold text-purple-700 mb-2">دمج الخلايا (Merge)</h3>
+                        <p class="text-sm text-gray-600 mb-3">يجمع عدة خلايا في خلية واحدة.</p>
+                        <div class="bg-yellow-50 text-yellow-800 text-xs p-2 rounded border border-yellow-200">
+                            <i class="fas fa-exclamation-triangle"></i> تحذير: يحتفظ فقط ببيانات الخلية العلوية اليمنى ويحذف الباقي.
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                        <h3 class="font-bold text-indigo-700 mb-2">ضم النصوص (Concatenate)</h3>
+                        <p class="text-sm text-gray-600 mb-3">لدمج محتوى خليتين نصياً (مثل الاسم الأول + الكنية).</p>
+                        <code class="block bg-gray-800 text-green-400 p-2 rounded text-xs mb-2">=A1 & " " & B1</code>
+                        <p class="text-xs text-gray-500">أو استخدم دالة CONCATENATE</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="op-content-conditional" class="op-content hidden animate-fade-in">
+                <div class="bg-gradient-to-br from-white to-red-50 p-6 rounded-lg shadow-sm border border-red-100">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-traffic-light text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">التنسيق الشرطي</h3>
+                            <p class="text-gray-600 text-sm mt-1">تغيير لون أو خط الخلية تلقائياً بناءً على قيمتها.</p>
+                            <p class="text-gray-600 text-sm mt-2"><strong>أمثلة:</strong> تمييز الراسبين باللون الأحمر، تمييز القيم المتكررة.</p>
+                            <div class="mt-4 text-xs font-mono bg-white inline-block px-3 py-1 rounded border">الصفحة الرئيسية > تنسيق شرطي</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: FILES -->
+        <section id="view-files" class="view-section hidden space-y-6">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 border-r-4 border-excel pr-3">إدارة الملفات وأوراق العمل</h2>
+                <p class="text-gray-600">كيفية التعامل مع المصنفات وأوراق العمل الداخلية.</p>
+            </div>
+
+            <!-- Open Options Comparison -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-gray-400 hover:-translate-y-1 transition transform">
+                    <h4 class="font-bold text-gray-700 mb-2">فتح (Open)</h4>
+                    <p class="text-sm text-gray-600">الوضع الطبيعي. تفتح الملف الأصلي وأي تعديل يُحفظ عليه.</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-blue-400 hover:-translate-y-1 transition transform">
+                    <h4 class="font-bold text-blue-700 mb-2">فتح كنسخة</h4>
+                    <p class="text-sm text-gray-600">ينشئ ملفاً جديداً (Copy) ويبقى الأصل كما هو. ممتاز للتجريب.</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-red-400 hover:-translate-y-1 transition transform">
+                    <h4 class="font-bold text-red-700 mb-2">للقراءة فقط</h4>
+                    <p class="text-sm text-gray-600">تستعرض الملف الأصلي ولكن لا يمكنك حفظ التعديلات بنفس الاسم.</p>
+                </div>
+            </div>
+
+            <!-- Worksheet Operations & Freeze Panes -->
+            <div class="flex flex-col lg:flex-row gap-6">
+                <div class="flex-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-lg mb-4 text-excel">عمليات ورقة العمل</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                            <i class="fas fa-plus-circle text-green-500"></i>
+                            <span class="text-sm"><strong>إدراج:</strong> إضافة ورقة جديدة.</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                            <i class="fas fa-trash text-red-500"></i>
+                            <span class="text-sm"><strong>حذف:</strong> إزالة الورقة نهائياً.</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                            <i class="fas fa-edit text-blue-500"></i>
+                            <span class="text-sm"><strong>إعادة تسمية:</strong> لتنظيم العمل.</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                            <i class="fas fa-lock text-gray-500"></i>
+                            <span class="text-sm"><strong>حماية:</strong> منع التعديل بكلمة سر.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="flex-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-lg mb-4 text-blue-600">تجميد الأجزاء (Freeze Panes)</h3>
+                    <p class="text-sm text-gray-600 mb-4">لتثبيت العناوين أثناء التمرير.</p>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg text-sm space-y-2 border border-blue-100">
+                        <p class="font-bold text-blue-800">القاعدة الذهبية للتحديد:</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>لتجميد الصف العلوي: حدد الصف الذي <strong>أسفله</strong>.</li>
+                            <li>لتجميد العمود الأيمن: حدد العمود الذي <strong>على يساره</strong>.</li>
+                        </ul>
+                        <div class="mt-2 text-xs text-blue-600 text-center bg-white p-1 rounded">مسار: عرض > تجميد الأجزاء</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SHORTCUTS -->
+        <section id="view-shortcuts" class="view-section hidden space-y-6">
+            <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2 border-r-4 border-excel pr-3">دليل الاختصارات</h2>
+                    <p class="text-gray-600">ابحث عن أي اختصار تم ذكره في المحاضرة.</p>
+                </div>
+                <div class="relative w-full md:w-64">
+                    <input type="text" id="shortcut-search" placeholder="ابحث عن أمر أو زر..." class="w-full pl-4 pr-10 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-excel focus:ring-1 focus:ring-excel transition" onkeyup="filterShortcuts()">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+                <table class="w-full text-right">
+                    <thead class="bg-gray-50 text-gray-500 text-sm uppercase">
+                        <tr>
+                            <th class="px-6 py-3 font-medium">الوظيفة</th>
+                            <th class="px-6 py-3 font-medium">الاختصار (لوحة المفاتيح)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shortcuts-table" class="divide-y divide-gray-200 text-gray-700">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                <div id="no-results" class="hidden p-8 text-center text-gray-500">
+                    لا توجد نتائج مطابقة لبحثك.
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- Visualization & Interaction Logic -->
+<script>
+    // --- Data Definitions ---
+    const shortcutsData = [
+        { cmd: "فتح ملف", keys: "Ctrl + O" },
+        { cmd: "حفظ ملف", keys: "Ctrl + S" },
+        { cmd: "تحديد الكل", keys: "Ctrl + A" },
+        { cmd: "بداية المصنف (A1)", keys: "Ctrl + Home" },
+        { cmd: "نهاية البيانات", keys: "Ctrl + End" },
+        { cmd: "التاريخ الحالي", keys: "Ctrl + ;" },
+        { cmd: "الوقت الحالي", keys: "Ctrl + Shift + ;" },
+        { cmd: "سطر جديد داخل خلية", keys: "Alt + Enter" },
+        { cmd: "البحث", keys: "Ctrl + F" }, // Implied from standard
+        { cmd: "استبدال", keys: "Ctrl + H" }, // Implied
+        { cmd: "تحديد نطاق متصل", keys: "Shift + الأسهم" },
+        { cmd: "تحديد متباعد", keys: "Ctrl + Click" },
+        { cmd: "تحديد سريع للبيانات", keys: "Ctrl + Shift + الأسهم" }
+    ];
+
+    const interfaceInfo = {
+        'command': {
+            title: 'شريط الأوامر (Command Bar)',
+            desc: 'يحتوي على أيقونات المهام الرئيسية والسريعة مثل الحفظ، التراجع، والإعادة. يمكنك تخصيصه لإضافة المزيد من الأوامر.',
+            extra: 'نصيحة: استخدم السهم الصغير لإضافة أوامر تستخدمها بكثرة.'
+        },
+        'ribbon': {
+            title: 'الأشرطة (Ribbons)',
+            desc: 'صفحات مبوبة (تبويبات) تنظم الأدوات حسب وظيفتها، مثل "الصفحة الرئيسية" للتنسيق، و"إدراج" لإضافة الكائنات.',
+            extra: 'انقر نقراً مزدوجاً على اسم التبويب لإخفاء الشريط وتوفير مساحة.'
+        },
+        'tools': {
+            title: 'منطقة الأدوات',
+            desc: 'تعرض جميع الأوامر المتاحة داخل التبويب المحدد حالياً.',
+            extra: ''
+        },
+        'formula': {
+            title: 'شريط الصيغة (Formula Bar)',
+            desc: 'يعرض المحتوى الحقيقي للخلية النشطة. سواء كان المحتوى نصاً، رقماً، أو معادلة رياضية.',
+            extra: 'يمكنك التعديل على محتوى الخلية من هنا مباشرة.'
+        },
+        'worksheet': {
+            title: 'صفحة العمل (Worksheet)',
+            desc: 'الشبكة المكونة من صفوف وأرقام حيث يتم إدخال البيانات. الخلية النشطة (مثل A1) تكون محاطة بحدود سميكة.',
+            extra: 'لاحظ مقبض التعبئة (المربع الصغير) في زاوية الخلية النشطة.'
+        }
+    };
+
+    const dataTypesInfo = {
+        labels: ['أرقام', 'نصوص', 'تواريخ وأوقات', 'منطق', 'أخطاء'],
+        data: [30, 30, 20, 10, 10],
+        details: {
+            0: { 
+                title: 'الأرقام (Numbers)', 
+                desc: 'تشمل الأرقام الصحيحة، العشرية، والنسب المئوية. يمكن إجراء العمليات الحسابية عليها.',
+                example: '150, 3.14, 50%'
+            },
+            1: { 
+                title: 'النصوص (Text)', 
+                desc: 'أي بيانات تحتوي على أحرف أو رموز لا تُعامل كأرقام. إذا وضعت رقماً بين علامتي تنصيص يعتبر نصاً.',
+                example: '"أحمد", "Excel 2016"'
+            },
+            2: { 
+                title: 'التواريخ والأوقات', 
+                desc: 'يعاملها إكسل كأرقام تسلسلية (1 = 1/1/1900). الأوقات هي كسور عشرية.',
+                example: 'Ctrl+; للتاريخ, Ctrl+Shift+; للوقت'
+            },
+            3: { 
+                title: 'القيم المنطقية (Logical)', 
+                desc: 'نتيجة معادلات المقارنة.',
+                example: 'TRUE, FALSE'
+            },
+            4: { 
+                title: 'الأخطاء (Errors)', 
+                desc: 'تظهر عند وجود مشكلة في المعادلة أو العرض.',
+                example: '###### (العمود ضيق), #DIV/0! (القسمة على صفر)'
+            }
+        }
+    };
+
+    // --- Navigation Logic ---
+    function navigate(viewId) {
+        // Hide all views
+        document.querySelectorAll('.view-section').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        // Remove active state from nav
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('bg-green-50', 'text-excel');
+            el.classList.add('text-gray-700');
+        });
+
+        // Show selected view
+        const targetView = document.getElementById(`view-${viewId}`);
+        if(targetView) {
+            targetView.classList.remove('hidden');
+            // Simple fade in effect reset
+            targetView.classList.remove('animate-fade-in');
+            void targetView.offsetWidth; // trigger reflow
+            targetView.classList.add('animate-fade-in');
+        }
+
+        // Set active nav
+        const activeBtn = document.querySelector(`.nav-item[data-target="${viewId}"]`);
+        if(activeBtn) {
+            activeBtn.classList.remove('text-gray-700');
+            activeBtn.classList.add('bg-green-50', 'text-excel');
+        }
+
+        // Mobile menu logic
+        if(window.innerWidth < 768) {
+            document.getElementById('nav-links').classList.add('hidden');
+        }
+
+        // Render chart if data view is selected and chart doesn't exist
+        if(viewId === 'data' && !window.myChart) {
+            initChart();
+        }
+    }
+
+    // --- Interface Explorer Logic ---
+    function showInfo(part) {
+        const info = interfaceInfo[part];
+        if(info) {
+            document.getElementById('info-title').innerText = info.title;
+            document.getElementById('info-desc').innerText = info.desc;
+            const extraDiv = document.getElementById('info-extra');
+            if(info.extra) {
+                extraDiv.innerText = info.extra;
+                extraDiv.classList.remove('hidden');
+            } else {
+                extraDiv.classList.add('hidden');
+            }
+        }
+    }
+
+    // --- Chart Logic ---
+    function initChart() {
+        const ctx = document.getElementById('dataTypesChart').getContext('2d');
+        window.myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: dataTypesInfo.labels,
+                datasets: [{
+                    data: dataTypesInfo.data,
+                    backgroundColor: [
+                        '#3b82f6', // Blue for Numbers
+                        '#10b981', // Green for Text
+                        '#8b5cf6', // Purple for Dates
+                        '#f59e0b', // Yellow for Logic
+                        '#ef4444'  // Red for Errors
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Segoe UI' } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label;
+                            }
+                        }
+                    }
+                },
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        updateDataDetails(index);
+                    }
+                }
+            }
+        });
+    }
+
+    function updateDataDetails(index) {
+        const info = dataTypesInfo.details[index];
+        if(info) {
+            document.getElementById('dt-title').innerText = info.title;
+            document.getElementById('dt-desc').innerText = info.desc;
+            document.getElementById('dt-example').innerText = info.example;
+            // Highlight box
+            const box = document.getElementById('data-type-details');
+            box.classList.remove('border-blue-500');
+            box.classList.add('border-excel');
+        }
+    }
+
+    // --- Tabs Logic ---
+    function switchOpTab(tabId, btn) {
+        // Hide all tab content
+        document.querySelectorAll('.op-content').forEach(el => el.classList.add('hidden'));
+        // Show selected
+        document.getElementById(`op-content-${tabId}`).classList.remove('hidden');
+        
+        // Update buttons
+        document.querySelectorAll('.op-tab').forEach(el => {
+            el.classList.remove('text-excel', 'border-b-2', 'border-excel');
+            el.classList.add('text-gray-500');
+        });
+        btn.classList.remove('text-gray-500');
+        btn.classList.add('text-excel', 'border-b-2', 'border-excel');
+    }
+
+    // --- Shortcuts Logic ---
+    function renderShortcuts() {
+        const tbody = document.getElementById('shortcuts-table');
+        tbody.innerHTML = shortcutsData.map(item => `
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4">${item.cmd}</td>
+                <td class="px-6 py-4 font-mono text-excel font-bold" dir="ltr">${item.keys}</td>
+            </tr>
+        `).join('');
+    }
+
+    function filterShortcuts() {
+        const query = document.getElementById('shortcut-search').value.toLowerCase();
+        const rows = document.querySelectorAll('#shortcuts-table tr');
+        let hasResults = false;
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if(text.includes(query)) {
+                row.classList.remove('hidden');
+                hasResults = true;
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+
+        const noRes = document.getElementById('no-results');
+        if(!hasResults) noRes.classList.remove('hidden');
+        else noRes.classList.add('hidden');
+    }
+
+    // --- Initial Setup ---
+    document.addEventListener('DOMContentLoaded', () => {
+        renderShortcuts();
+        
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const nav = document.getElementById('nav-links');
+            nav.classList.toggle('hidden');
+        });
+    });
+
+</script>
+
+<!-- Confirmation: NO SVG used. NO Merma
