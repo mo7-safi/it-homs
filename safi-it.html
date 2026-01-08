@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاضرات معلوماتية حمص - السنة الأولى</title>
-    <!-- استدعاء خط Cairo من Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -43,46 +42,6 @@
             --tab-inactive: #e9ecef;
             --disclaimer-bg: #fff9e6;
             --disclaimer-text: #856404;
-
-/* 1. تنسيق اللوجو الثابت في الزاوية العلوية اليمنى */
-.corner-logo {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    width: 60px; /* حجم اللوجو في الزاوية */
-    height: auto;
-    z-index: 1000;
-}
-
-/* 2. إضافة اللوجو الشفاف خلف "المكتبة الرقمية" */
-.header {
-    position: relative;
-    overflow: hidden;
-}
-
-.header::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 220px; /* حجم اللوجو خلف النص */
-    height: 220px;
-    background-image: url('logo.png'); /* يستخدم الملف الذي رفعته للتو */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.15; /* درجة الشفافية: 0.15 تعني فاهي جداً */
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* ضمان ظهور النص فوق اللوجو الشفاف */
-.header h1, .header p {
-    position: relative;
-    z-index: 1;
-}
-            
         }
 
         [data-theme="dark"] {
@@ -91,7 +50,6 @@
             --text-color: #e4e6eb;
             --tab-inactive: #2d2d2d;
             
-            /* تدرجات المواد في المود الليلي (داكنة وهادئة) */
             --math-grad: linear-gradient(135deg, #0d47a122, #1e1e1e);
             --prog-grad: linear-gradient(135deg, #1b5e2022, #1e1e1e);
             --principles-grad: linear-gradient(135deg, #e6510022, #1e1e1e);
@@ -103,7 +61,6 @@
 
         * {
             box-sizing: border-box;
-            /* منع نسخ النص */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -112,8 +69,6 @@
         }
 
         body {
-<img src="logo.png" alt="University Logo" class="corner-logo">
-            
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -123,6 +78,7 @@
             overflow-x: hidden;
         }
 
+        /* --- تعديل الناف بار للوجو --- */
         .top-nav {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 15px; background: var(--card-bg);
@@ -131,30 +87,45 @@
         }
 
         .nav-logo {
+            display: flex; align-items: center; gap: 10px;
             font-weight: 900; font-size: 1.2rem; 
             background: var(--mixed-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
+        .corner-logo-img {
+            height: 38px; width: auto;
+        }
+
+        /* --- الهيدر مع اللوجو الشفاف --- */
+        header { 
+            position: relative; overflow: hidden;
+            text-align: center; padding: 45px 15px; 
+            background: var(--mixed-gradient); color: white;
+            border-bottom-left-radius: 45px; border-bottom-right-radius: 45px;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.25);
+        }
+
+        header::before {
+            content: ""; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px; height: 220px;
+            background-image: url('logo.png');
+            background-size: contain; background-repeat: no-repeat;
+            opacity: 0.15; z-index: 0; pointer-events: none;
+        }
+        
+        header h1, header p { position: relative; z-index: 1; }
+        header h1 { margin: 0; font-size: 1.8rem; font-weight: 900; }
+        header p { opacity: 0.9; font-size: 0.95rem; margin-top: 8px; font-weight: 600; }
+
+        /* ... التنسيقات الأخرى ... */
         .btn-tool {
             background: var(--tab-inactive); color: var(--text-color); border: none;
             padding: 8px 12px; border-radius: 12px; cursor: pointer;
             font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.8rem;
         }
-
-        header { 
-            text-align: center; 
-            padding: 45px 15px; 
-            background: var(--mixed-gradient);
-            color: white;
-            border-bottom-left-radius: 45px;
-            border-bottom-right-radius: 45px;
-            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.25);
-        }
-        
-        header h1 { margin: 0; font-size: 1.8rem; font-weight: 900; }
-        header p { opacity: 0.9; font-size: 0.95rem; margin-top: 8px; font-weight: 600; }
 
         .disclaimer {
             background: var(--disclaimer-bg); color: var(--disclaimer-text);
@@ -164,137 +135,69 @@
             position: relative; z-index: 10;
         }
 
-        .semester-tabs {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;
-        }
+        .semester-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
 
         .tab-btn {
             padding: 12px 25px; border: none; border-radius: 15px;
             font-size: 0.95rem; font-weight: 800; cursor: pointer;
             transition: 0.4s; background: var(--card-bg); color: var(--text-color);
             font-family: 'Cairo', sans-serif;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
 
-        .tab-btn.active { 
-            background: var(--mixed-gradient); color: white; 
-            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
-        }
+        .tab-btn.active { background: var(--mixed-gradient); color: white; }
 
         .subjects-grid {
             display: grid; grid-template-columns: 1fr;
-            gap: 20px; max-width: 100%; margin: 0 auto; padding: 0 15px;
+            gap: 20px; padding: 0 15px;
         }
 
         @media (min-width: 768px) {
             .subjects-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
         }
 
-        /* تصميم المربعات (Cards) بتدرجات فريدة */
-        .card {
-            border-radius: 25px; padding: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.03);
-            position: relative;
-            transition: transform 0.3s ease;
-            overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.02);
-        }
-        
-        .card:active { transform: scale(0.97); }
-
-        /* تطبيق التدرجات لكل مادة */
-        .card.math { background: var(--math-grad); }
-        .card.math::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--math-border); }
-
-        .card.prog { background: var(--prog-grad); }
-        .card.prog::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--prog-border); }
-
+        .card { border-radius: 25px; padding: 25px; position: relative; overflow: hidden; }
         .card.principles { background: var(--principles-grad); }
         .card.principles::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--principles-border); }
-
+        .card.prog { background: var(--prog-grad); }
+        .card.prog::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--prog-border); }
+        .card.math { background: var(--math-grad); }
+        .card.math::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--math-border); }
+        /* ... باقي المواد ... */
         .card.boolean { background: var(--boolean-grad); }
         .card.boolean::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--boolean-border); }
-
         .card.electronics { background: var(--elec-grad); }
         .card.electronics::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--elec-border); }
-
         .card.english { background: var(--english-grad); }
         .card.english::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--english-border); }
-
         .card.arabic { background: var(--arabic-grad); }
         .card.arabic::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--arabic-border); }
 
-        .card h3 { 
-            margin: 5px 0 18px; font-size: 1.2rem; font-weight: 800;
-            display: flex; align-items: center; gap: 12px;
-            color: var(--text-color);
-        }
-
-        .lecture-list:empty::before, .split-list:empty::before {
-            content: "لا يوجد محاضرات حالياً";
-            display: block; padding: 20px; background: rgba(0,0,0,0.02);
-            border-radius: 15px; font-size: 0.85em; color: #b2bec3; text-align: center;
-        }
+        .card h3 { margin: 5px 0 18px; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
 
         .lecture-list, .split-list { display: flex; flex-direction: column; gap: 12px; }
-
         .action-btn, .split-btn-item {
             display: block; background: var(--card-bg); color: var(--text-color);
             padding: 14px; border-radius: 18px; text-decoration: none;
-            font-weight: 700; transition: 0.3s; 
-            font-size: 0.95rem; text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .action-btn:active, .split-btn-item:active { 
-            background: var(--mixed-gradient); 
-            color: white; 
-            box-shadow: 0 8px 15px rgba(108, 92, 231, 0.2);
-            border-color: transparent;
+            font-weight: 700; text-align: center; border: 1px solid rgba(0,0,0,0.05);
         }
 
         .split-btns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .split-label { font-size: 0.8rem; color: #636e72; margin-bottom: 6px; font-weight: 800; text-align: center; }
+        .split-label { font-size: 0.8rem; color: #636e72; margin-bottom: 6px; font-weight: 800; text-align: center; display: block; }
 
-        footer {
-            margin-top: 60px; padding: 40px 20px; text-align: center;
-            background: var(--card-bg); border-top: 1px solid rgba(0,0,0,0.05);
-            border-radius: 40px 40px 0 0;
-        }
-
-        .footer-text { font-weight: 900; font-size: 1rem; color: var(--text-color); margin-bottom: 4px; }
-        .copyright { font-size: 0.8rem; opacity: 0.6; font-weight: 700; display: block; margin-bottom: 25px; }
-
-        .contact-section { margin-top: 15px; padding-top: 25px; border-top: 1px dashed rgba(0,0,0,0.1); }
-        .contact-title { font-weight: 800; font-size: 0.85rem; margin-bottom: 15px; opacity: 0.8; }
-        
-        .tg-link { 
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 12px 28px; 
-            background: var(--mixed-gradient); 
-            color: white; border-radius: 18px;
-            text-decoration: none; font-weight: 800; font-size: 0.95rem;
-            box-shadow: 0 6px 15px rgba(9, 132, 227, 0.25);
-            transition: 0.3s;
-        }
-        .tg-link:active { transform: scale(0.95); }
-        .tg-icon { margin-left: 10px; display: flex; align-items: center; }
-
-        .semester-content { display: none; animation: slideUp 0.5s ease; }
+        footer { margin-top: 60px; padding: 40px 20px; text-align: center; background: var(--card-bg); border-radius: 40px 40px 0 0; }
+        .tg-link { display: inline-flex; align-items: center; padding: 12px 28px; background: var(--mixed-gradient); color: white; border-radius: 18px; text-decoration: none; font-weight: 800; }
+        .semester-content { display: none; }
         .semester-content.active { display: block; }
-        
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
 
     </style>
 </head>
 <body id="app-body">
 
     <nav class="top-nav">
-        <div class="nav-logo">🏛️ IT HOMS</div>
+        <div class="nav-logo">
+            <img src="logo.png" alt="logo" class="corner-logo-img">
+            IT HOMS
+        </div>
         <div>
             <button class="btn-tool" onclick="toggleTheme()">🌓</button>
             <button class="btn-tool" onclick="changeFont(1)">A+</button>
@@ -316,7 +219,6 @@
         <button class="tab-btn" onclick="showSemester(2)">الفصل الثاني</button>
     </div>
 
-    <!-- محتوى الفصل الأول -->
     <div id="semester1" class="semester-content active">
         <div class="subjects-grid">
             
@@ -330,10 +232,11 @@
                     <div>
                         <span class="split-label">العملي</span>
                         <div id="principles_practical-list" class="split-list">
-            <a href="https://mo7-safi.github.io/it-homs/lectures/A_bank_of_100_questions_for_the_first_four_lectures_1767884247.html" class="split-btn-item">بنك مئة سؤال لأول أربع محاضرات</a>
-            <a href="https://mo7-safi.github.io/it-homs/lectures/Fourth_lecture_1767884104.html" class="split-btn-item">المحاضرة الرابعة</a>
-            <a href="https://mo7-safi.github.io/it-homs/lectures/The_third_lecture_1767884072.html" class="split-btn-item">المحاضرة الثالثة</a>
-            <a href="https://mo7-safi.github.io/it-homs/lectures/The_first_and_second_lecture_1767884039.html" class="split-btn-item">المحاضرة الاولى و الثانية</a></div>
+                            <a href="https://mo7-safi.github.io/it-homs/lectures/A_bank_of_100_questions_for_the_first_four_lectures_1767884247.html" class="split-btn-item">بنك مئة سؤال لأول أربع محاضرات</a>
+                            <a href="https://mo7-safi.github.io/it-homs/lectures/Fourth_lecture_1767884104.html" class="split-btn-item">المحاضرة الرابعة</a>
+                            <a href="https://mo7-safi.github.io/it-homs/lectures/The_third_lecture_1767884072.html" class="split-btn-item">المحاضرة الثالثة</a>
+                            <a href="https://mo7-safi.github.io/it-homs/lectures/The_first_and_second_lecture_1767884039.html" class="split-btn-item">المحاضرة الاولى و الثانية</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -348,7 +251,8 @@
                     <div>
                         <span class="split-label">العملي</span>
                         <div id="programming_practical-list" class="split-list">
-            <a href="https://mo7-safi.github.io/it-homs/lectures/First_lecture_1767883517.html" class="split-btn-item">المحاضرة الأولى</a></div>
+                            <a href="https://mo7-safi.github.io/it-homs/lectures/First_lecture_1767883517.html" class="split-btn-item">المحاضرة الأولى</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -383,22 +287,14 @@
 
     <div id="semester2" class="semester-content">
         <div style="text-align: center; padding: 60px; opacity: 0.5;">
-            <div style="font-size: 4rem; filter: grayscale(1);">🗓️</div>
-            <h3 style="font-weight: 900; margin-top: 15px;">قريباً.. مواد الفصل الثاني</h3>
+            <h3>قريباً.. مواد الفصل الثاني</h3>
         </div>
     </div>
 
     <footer>
         <p class="footer-text">تم التطوير بواسطة مُحمد صافي</p>
-        <span class="copyright">جميع الحقوق محفوظة &copy; 2026</span>
         <div class="contact-section">
-            <p class="contact-title">للتواصل مع المطور في حال وجود اخطاء :</p>
-            <a href="https://t.me/Mo7_99" class="tg-link">
-                <span class="tg-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
-                </span>
-                @Mo7_99
-            </a>
+            <a href="https://t.me/Mo7_99" class="tg-link">@Mo7_99</a>
         </div>
     </footer>
 
@@ -425,5 +321,4 @@
         }
     </script>
 </body>
-
 </html>
