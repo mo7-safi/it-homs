@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاضرة Excel 4: الجداول والدالات - تطبيق تفاعلي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f5f5f0; /* Warm neutral background */
+            color: #3d3d3d;
+        }
+        
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e6e6e6; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a8a29e; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #78716c; 
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .interactive-cell:hover {
+            background-color: #fef3c7;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .active-tab {
+            border-bottom: 2px solid #b45309; /* Amber-700 */
+            color: #b45309;
+            font-weight: 700;
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals (Stone, Amber, Orange accents) for a calm, academic feel -->
+    <!-- Application Structure Plan: 
+         The app follows a logical progression mirroring the user's learning journey:
+         1. Introduction & Overview: Setting context (University/Course).
+         2. Table Mechanics (The 'Container'): How to build and manage the structure holding data.
+         3. Data Manipulation (The 'Action'): Interactive playground for Sorting and Filtering (Simulating Excel behavior).
+         4. Functions Lab (The 'Logic'): A grid of cards explaining functions with a live calculator.
+         5. VLOOKUP Simulator (The 'Advanced Skill'): A dedicated visualizer for the complex cross-referencing task described in the PDF.
+         This structure moves from static structure to dynamic manipulation, then to logic, and finally to complex relational concepts.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Interactive Data Grid: To demonstrate Filtering/Sorting. Goal: Inform/Change. Method: HTML Table + JS. Justification: Users need to see rows hide/reorder to understand the concept.
+         2. Formula Calculator: To demonstrate Functions (COUNT, MAX, etc.). Goal: Inform. Method: Input fields + JS Logic. Justification: Static text is boring; inputting numbers and seeing the result cements understanding.
+         3. VLOOKUP Visualizer: To explain Relations. Goal: Relationships. Method: Two visual tables side-by-side + JS Highlighting. Justification: VLOOKUP is hard to visualize abstractly; showing the "look" and "fetch" action is critical.
+         4. Salary Chart: To visualize the data used in VLOOKUP. Goal: Inform. Method: Chart.js Bar Chart. Justification: Adds visual interest to the numeric data.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-[#f5f5f0] min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-stone-800">مبادئ عمل الحواسيب - 1</h1>
+                <p class="text-sm text-stone-500">جامعة البعث - كلية الهندسة المعلوماتية - المحاضرة 4</p>
+            </div>
+            <nav class="hidden md:flex space-x-reverse space-x-6 text-sm font-medium">
+                <button onclick="scrollToSection('tables-section')" class="hover:text-amber-700 transition-colors">جداول Excel</button>
+                <button onclick="scrollToSection('manipulation-section')" class="hover:text-amber-700 transition-colors">التصفية والفرز</button>
+                <button onclick="scrollToSection('functions-section')" class="hover:text-amber-700 transition-colors">الدالات</button>
+                <button onclick="scrollToSection('vlookup-section')" class="hover:text-amber-700 transition-colors">مختبر VLOOKUP</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 space-y-12">
+
+        <!-- Intro Section -->
+        <section class="text-center max-w-3xl mx-auto mb-12">
+            <h2 class="text-4xl font-bold text-stone-800 mb-4">إتقان جداول Excel والدالات</h2>
+            <p class="text-lg text-stone-600 leading-relaxed">
+                مرحباً بك في الدليل التفاعلي للمحاضرة الرابعة. يهدف هذا التطبيق إلى تحويل المفاهيم النظرية لإنشاء الجداول، وتصفية البيانات، واستخدام الدالات الرياضية والبحثية (مثل VLOOKUP) إلى تجربة عملية. يمكنك التجربة والتفاعل مع البيانات لفهم كيف يعالج Excel المعلومات.
+            </p>
+        </section>
+
+        <!-- Section 1: Table Mechanics -->
+        <section id="tables-section" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-stone-100">
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <div class="md:w-1/2">
+                    <h3 class="text-2xl font-bold text-stone-800 mb-4 border-r-4 border-amber-500 pr-3">1. إنشاء وتخصيص الجداول</h3>
+                    <p class="text-stone-600 mb-6">
+                        تتيح جداول Excel إدارة البيانات بمرونة. يمكنك تحويل نطاق عادي إلى جدول للوصول إلى ميزات مثل "تبويب التصميم"، "صف الإجمالي"، والتنسيق التلقائي. استكشف الأدوات أدناه لمعرفة كيفية التحكم بالجدول.
+                    </p>
+                    
+                    <!-- Interactive Accordion for Table Operations -->
+                    <div class="space-y-3" id="table-accordion">
+                        <!-- Items generated by JS -->
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 bg-stone-50 rounded-xl p-6 border border-stone-200">
+                    <h4 class="font-bold text-stone-700 mb-3 text-center">محاكي خصائص الجدول</h4>
+                    <div class="bg-white p-4 rounded shadow-inner mb-4 overflow-x-auto">
+                        <table class="w-full text-sm text-right border-collapse" id="demo-table-visual">
+                            <thead>
+                                <tr class="bg-stone-200 text-stone-700">
+                                    <th class="p-2 border border-stone-300">المنتج</th>
+                                    <th class="p-2 border border-stone-300">الكمية</th>
+                                    <th class="p-2 border border-stone-300">السعر</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-2 border">تفاح</td><td class="p-2 border">50</td><td class="p-2 border">100</td></tr>
+                                <tr><td class="p-2 border">برتقال</td><td class="p-2 border">30</td><td class="p-2 border">80</td></tr>
+                                <tr><td class="p-2 border">موز</td><td class="p-2 border">100</td><td class="p-2 border">50</td></tr>
+                            </tbody>
+                            <tfoot id="table-total-row" class="hidden font-bold bg-amber-50 text-amber-900">
+                                <tr>
+                                    <td class="p-2 border">الإجمالي</td>
+                                    <td class="p-2 border">180</td>
+                                    <td class="p-2 border">230</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="toggleHeader()" class="px-4 py-2 bg-stone-200 hover:bg-stone-300 rounded text-stone-700 text-sm transition">تبديل الرؤوس</button>
+                        <button onclick="toggleTotalRow()" class="px-4 py-2 bg-amber-100 hover:bg-amber-200 rounded text-amber-800 text-sm transition">تبديل صف الإجمالي</button>
+                        <button onclick="addDemoRow()" class="px-4 py-2 bg-stone-200 hover:bg-stone-300 rounded text-stone-700 text-sm transition">إضافة صف (Enter/Tab)</button>
+                        <button onclick="resetDemoTable()" class="px-4 py-2 bg-red-50 hover:bg-red-100 rounded text-red-700 text-sm transition">إعادة تعيين</button>
+                    </div>
+                    <p class="text-xs text-stone-400 mt-2 text-center">اضغط الأزرار لمحاكاة أوامر شريط "تصميم الجدول".</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Data Manipulation (Filter & Sort) -->
+        <section id="manipulation-section" class="space-y-6">
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-stone-100">
+                <h3 class="text-2xl font-bold text-stone-800 mb-2 border-r-4 border-amber-500 pr-3">2. التصفية والفرز (Filtering & Sorting)</h3>
+                <p class="text-stone-600 mb-6">
+                    القدرة على تصفية البيانات (إخفاء ما لا تحتاجه) وفرزها (ترتيبها منطقياً) هي جوهر تحليل البيانات. استخدم لوحة التحكم أدناه لتطبيق القواعد التي تعلمتها في المحاضرة على بيانات الموظفين.
+                </p>
+
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Controls -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-stone-50 p-5 rounded-xl border border-stone-200">
+                            <h4 class="font-bold text-stone-700 mb-4 flex items-center gap-2">
+                                <span class="text-xl">🔍</span> أدوات التصفية
+                            </h4>
+                            <div class="space-y-3">
+                                <label class="block text-sm font-medium text-stone-600">تصفية حسب القسم (نص):</label>
+                                <select id="filter-dept" onchange="applyFilters()" class="w-full p-2 border border-stone-300 rounded bg-white">
+                                    <option value="all">الكل</option>
+                                    <option value="IT">IT</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Sales">Sales</option>
+                                </select>
+
+                                <label class="block text-sm font-medium text-stone-600">تصفية حسب الراتب (أرقام):</label>
+                                <div class="flex gap-2">
+                                    <select id="filter-salary-op" class="w-1/3 p-2 border border-stone-300 rounded bg-white">
+                                        <option value="gt">></option>
+                                        <option value="lt"><</option>
+                                        <option value="eq">=</option>
+                                    </select>
+                                    <input type="number" id="filter-salary-val" placeholder="قيمة" class="w-2/3 p-2 border border-stone-300 rounded">
+                                </div>
+                                <button onclick="applyFilters()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded transition shadow-sm">تطبيق التصفية</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-stone-50 p-5 rounded-xl border border-stone-200">
+                            <h4 class="font-bold text-stone-700 mb-4 flex items-center gap-2">
+                                <span class="text-xl">🔃</span> أدوات الفرز
+                            </h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="sortData('name', 'asc')" class="p-2 bg-white border border-stone-300 rounded hover:bg-stone-100 text-sm">الاسم (أ-ي)</button>
+                                <button onclick="sortData('name', 'desc')" class="p-2 bg-white border border-stone-300 rounded hover:bg-stone-100 text-sm">الاسم (ي-أ)</button>
+                                <button onclick="sortData('salary', 'asc')" class="p-2 bg-white border border-stone-300 rounded hover:bg-stone-100 text-sm">الراتب (الأقل)</button>
+                                <button onclick="sortData('salary', 'desc')" class="p-2 bg-white border border-stone-300 rounded hover:bg-stone-100 text-sm">الراتب (الأعلى)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="lg:col-span-2">
+                        <div class="overflow-x-auto bg-white rounded-xl border border-stone-200 shadow-sm">
+                            <table class="w-full text-right" id="main-data-table">
+                                <thead class="bg-stone-100 text-stone-700">
+                                    <tr>
+                                        <th class="p-3">الاسم</th>
+                                        <th class="p-3">القسم</th>
+                                        <th class="p-3">تاريخ التوظيف</th>
+                                        <th class="p-3">الراتب</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-100" id="table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100">
+                            <strong>ملاحظة هامة:</strong> للحصول على أفضل نتائج تصفية، لا تقم بمزج تنسيقات البيانات (نص وأرقام) في نفس العمود، لأن Excel يستخدم نوع واحد من أوامر التصفية لكل عمود.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Functions Reference & Calculator -->
+        <section id="functions-section" class="bg-stone-900 text-stone-100 rounded-2xl shadow-lg p-6 md:p-8">
+            <h3 class="text-2xl font-bold mb-6 border-r-4 border-amber-500 pr-3">3. الدالات الأساسية (Functions)</h3>
+            <p class="text-stone-300 mb-8 max-w-4xl">
+                يوفر Excel مكتبة ضخمة من الدالات. فيما يلي أهم الدالات التي تم تناولها في المحاضرة. يمكنك تجربة الدالة مباشرة لمعرفة نتيجتها.
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Function Card: COUNT -->
+                <div class="bg-stone-800 p-5 rounded-xl border border-stone-700 hover:border-amber-500 transition-colors group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-xl font-bold text-amber-400 group-hover:text-amber-300">COUNT</h4>
+                        <span class="bg-stone-700 text-xs px-2 py-1 rounded text-stone-300">عد الأرقام</span>
+                    </div>
+                    <p class="text-sm text-stone-400 mb-4 h-10">تحسب عدد الخلايا التي تحتوي على <strong class="text-white">أرقام فقط</strong>.</p>
+                    <div class="bg-stone-900 p-3 rounded border border-stone-800">
+                        <input type="text" id="input-count" placeholder="10, abc, 20" class="w-full bg-stone-800 text-white p-1 text-sm rounded mb-2 border border-stone-700 focus:border-amber-500 outline-none" oninput="runFunction('COUNT')">
+                        <div class="text-right text-sm">النتيجة: <span id="res-count" class="font-mono text-amber-400">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Function Card: COUNTA -->
+                <div class="bg-stone-800 p-5 rounded-xl border border-stone-700 hover:border-amber-500 transition-colors group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-xl font-bold text-amber-400 group-hover:text-amber-300">COUNTA</h4>
+                        <span class="bg-stone-700 text-xs px-2 py-1 rounded text-stone-300">غير الفارغة</span>
+                    </div>
+                    <p class="text-sm text-stone-400 mb-4 h-10">تحسب عدد الخلايا التي تحتوي على <strong class="text-white">أي بيانات</strong> (ليست فارغة).</p>
+                    <div class="bg-stone-900 p-3 rounded border border-stone-800">
+                        <input type="text" id="input-counta" placeholder="10, abc, " class="w-full bg-stone-800 text-white p-1 text-sm rounded mb-2 border border-stone-700 focus:border-amber-500 outline-none" oninput="runFunction('COUNTA')">
+                        <div class="text-right text-sm">النتيجة: <span id="res-counta" class="font-mono text-amber-400">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Function Card: COUNTBLANK -->
+                <div class="bg-stone-800 p-5 rounded-xl border border-stone-700 hover:border-amber-500 transition-colors group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-xl font-bold text-amber-400 group-hover:text-amber-300">COUNTBLANK</h4>
+                        <span class="bg-stone-700 text-xs px-2 py-1 rounded text-stone-300">الفارغة</span>
+                    </div>
+                    <p class="text-sm text-stone-400 mb-4 h-10">تحسب عدد الخلايا <strong class="text-white">الفارغة تماماً</strong>.</p>
+                    <div class="bg-stone-900 p-3 rounded border border-stone-800">
+                        <div class="text-xs text-stone-500 mb-1">أدخل قيماً مفصولة بفواصل (اترك فراغاً بين الفواصل لتمثيل خلية فارغة):</div>
+                        <input type="text" id="input-blank" placeholder="1,,2" class="w-full bg-stone-800 text-white p-1 text-sm rounded mb-2 border border-stone-700 focus:border-amber-500 outline-none" oninput="runFunction('COUNTBLANK')">
+                        <div class="text-right text-sm">النتيجة: <span id="res-blank" class="font-mono text-amber-400">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Function Card: MAX -->
+                <div class="bg-stone-800 p-5 rounded-xl border border-stone-700 hover:border-amber-500 transition-colors group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-xl font-bold text-amber-400 group-hover:text-amber-300">MAX</h4>
+                        <span class="bg-stone-700 text-xs px-2 py-1 rounded text-stone-300">القيمة العظمى</span>
+                    </div>
+                    <p class="text-sm text-stone-400 mb-4 h-10">تعيد <strong class="text-white">أكبر رقم</strong> في مجموعة من القيم.</p>
+                    <div class="bg-stone-900 p-3 rounded border border-stone-800">
+                        <input type="text" id="input-max" placeholder="10, 50, 5" class="w-full bg-stone-800 text-white p-1 text-sm rounded mb-2 border border-stone-700 focus:border-amber-500 outline-none" oninput="runFunction('MAX')">
+                        <div class="text-right text-sm">النتيجة: <span id="res-max" class="font-mono text-amber-400">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Function Card: UPPER -->
+                <div class="bg-stone-800 p-5 rounded-xl border border-stone-700 hover:border-amber-500 transition-colors group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-xl font-bold text-amber-400 group-hover:text-amber-300">UPPER</h4>
+                        <span class="bg-stone-700 text-xs px-2 py-1 rounded text-stone-300">أحرف كبيرة</span>
+                    </div>
+                    <p class="text-sm text-stone-400 mb-4 h-10">تحول النص الإنجليزي إلى <strong class="text-white">أحرف كبيرة</strong> (CAPS).</p>
+                    <div class="bg-stone-900 p-3 rounded border border-stone-800">
+                        <input type="text" id="input-upper" placeholder="informatic" class="w-full bg-stone-800 text-white p-1 text-sm rounded mb-2 border border-stone-700 focus:border-amber-500 outline-none" oninput="runFunction('UPPER')">
+                        <div class="text-right text-sm">النتيجة: <span id="res-upper" class="font-mono text-amber-400"></span></div>
+                    </div>
+                </div>
+                 <!-- Function Card: PRODUCT -->
+                 <div class="bg-stone-800 p-5 rounded-xl border border-stone-700 hover:border-amber-500 transition-colors group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-xl font-bold text-amber-400 group-hover:text-amber-300">PRODUCT</h4>
+                        <span class="bg-stone-700 text-xs px-2 py-1 rounded text-stone-300">الضرب</span>
+                    </div>
+                    <p class="text-sm text-stone-400 mb-4 h-10">تقوم بعملية <strong class="text-white">الضرب</strong> لجميع الأرقام المحددة.</p>
+                    <div class="bg-stone-900 p-3 rounded border border-stone-800">
+                        <input type="text" id="input-product" placeholder="2, 3, 4" class="w-full bg-stone-800 text-white p-1 text-sm rounded mb-2 border border-stone-700 focus:border-amber-500 outline-none" oninput="runFunction('PRODUCT')">
+                        <div class="text-right text-sm">النتيجة: <span id="res-product" class="font-mono text-amber-400">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: VLOOKUP Lab -->
+        <section id="vlookup-section" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-stone-100">
+            <h3 class="text-2xl font-bold text-stone-800 mb-2 border-r-4 border-amber-500 pr-3">4. مختبر دالة البحث (VLOOKUP Lab)</h3>
+            <p class="text-stone-600 mb-6">
+                دالة <code>VLOOKUP</code> تستخدم لربط جدولين ببعضهما. في المثال أدناه (مأخوذ من المحاضرة)، سنقوم بجلب قيمة "القرض" من الجدول الثاني إلى الجدول الأول بناءً على "اسم الموظف".
+            </p>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 rounded shadow-sm">
+                <code class="text-lg font-mono text-stone-800 dir-ltr block text-left mb-2">=VLOOKUP(lookup_value, table_array, col_index_num, [range_lookup])</code>
+                <ul class="list-disc list-inside text-sm text-stone-700 space-y-1">
+                    <li><strong>lookup_value:</strong> القيمة التي نبحث عنها (الاسم في الجدول الأول).</li>
+                    <li><strong>table_array:</strong> الجدول الذي نبحث فيه (الجدول الثاني).</li>
+                    <li><strong>col_index_num:</strong> رقم العمود الذي نريد جلب البيانات منه (عمود القروض هو رقم 2).</li>
+                    <li><strong>range_lookup:</strong> نضع 0 للتطابق التام.</li>
+                </ul>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-start">
+                
+                <!-- Visualization of Tables -->
+                <div class="space-y-6">
+                    <!-- Table 1 (Destination) -->
+                    <div class="border rounded-xl p-4 shadow-sm bg-white relative">
+                        <h5 class="font-bold text-stone-700 mb-2">الورقة 1: جدول الرواتب (الهدف)</h5>
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-stone-100">
+                                <tr>
+                                    <th class="p-2 border">الاسم (A)</th>
+                                    <th class="p-2 border">الراتب (B)</th>
+                                    <th class="p-2 border bg-amber-100">القرض (C)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vlookup-dest-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div class="absolute -right-2 top-10 w-2 h-full border-r-2 border-dashed border-amber-300 hidden lg:block"></div>
+                    </div>
+
+                    <!-- Table 2 (Source) -->
+                    <div class="border rounded-xl p-4 shadow-sm bg-stone-50">
+                        <h5 class="font-bold text-stone-700 mb-2">الورقة 2: جدول القروض (المصدر)</h5>
+                        <table class="w-full text-right text-sm" id="vlookup-source-table">
+                            <thead class="bg-stone-200">
+                                <tr>
+                                    <th class="p-2 border">الاسم (A)</th>
+                                    <th class="p-2 border">قيمة القرض (B)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vlookup-source-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Interaction Panel -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-lg">
+                        <h4 class="font-bold text-lg mb-4">تنفيذ الدالة</h4>
+                        <div class="space-y-4">
+                            <p class="text-sm text-stone-600">اضغط على الزر أدناه لتطبيق الدالة على جميع الخلايا في عمود "القرض". سيقوم النظام بمطابقة الأسماء وجلب القيم.</p>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="runVlookup()" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded font-bold shadow transition transform hover:scale-105">
+                                    تشغيل VLOOKUP
+                                </button>
+                                <button onclick="resetVlookup()" class="px-4 bg-stone-200 hover:bg-stone-300 text-stone-700 rounded transition">
+                                    إعادة تعيين
+                                </button>
+                            </div>
+
+                            <div id="vlookup-status" class="hidden p-3 bg-green-50 text-green-800 rounded text-sm border border-green-200">
+                                تمت العملية بنجاح! لاحظ ظهور #N/A عند الأسماء غير الموجودة.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-lg">
+                         <h4 class="font-bold text-lg mb-4">معالجة الأخطاء (IFERROR)</h4>
+                         <p class="text-sm text-stone-600 mb-3">في الوظيفة المطلوبة، تم طلب استبدال الخطأ <code>#N/A</code> بالقيمة 0. نستخدم دالة <code>IFERROR</code> لهذا الغرض.</p>
+                         <button onclick="runIferror()" class="w-full py-2 bg-stone-700 hover:bg-stone-800 text-white rounded font-bold shadow transition">
+                            تطبيق IFERROR (استبدال الخطأ بـ 0)
+                        </button>
+                    </div>
+
+                    <!-- Chart for Salary Distribution -->
+                     <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm mt-6">
+                        <h4 class="font-bold text-sm text-stone-500 mb-2">توزيع الرواتب (تحليل بياني)</h4>
+                        <div class="chart-container">
+                            <canvas id="salaryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-800 text-stone-400 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">تم إنشاء هذا التطبيق بناءً على المحاضرة الرابعة - جامعة البعث.</p>
+            <p class="text-xs">يغطي: جداول Excel، التصفية، الفرز، الدالات، VLOOKUP.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA & STATE ---
+
+        // Section 1: Table Accordion Data
+        const tableTopics = [
+            {
+                title: "إضافة صف أو عمود",
+                content: "حدد خلية واكتب مباشرة أسفل/يمين الجدول للإضافة التلقائية، أو استخدم مقبض تغيير الحجم في الزاوية اليسرى السفلية."
+            },
+            {
+                title: "حذف التكرارات",
+                content: "من تبويب 'تصميم'، اختر 'إزالة التكرارات' لتنظيف بياناتك من القيم المكررة."
+            },
+            {
+                title: "تحويل إلى نطاق",
+                content: "إذا أردت إلغاء خصائص الجدول مع الاحتفاظ بالبيانات، استخدم 'تحويل إلى نطاق' من أدوات الجدول."
+            }
+        ];
+
+        // Section 2: Employee Data for Filter/Sort
+        const originalEmployees = [
+            { id: 1, name: "أحمد علي", dept: "IT", date: "2020-01-15", salary: 300000 },
+            { id: 2, name: "نور محمد", dept: "HR", date: "2019-05-20", salary: 400000 },
+            { id: 3, name: "رهف العلي", dept: "Sales", date: "2021-03-10", salary: 700000 },
+            { id: 4, name: "كريم المحمد", dept: "IT", date: "2018-11-01", salary: 700000 },
+            { id: 5, name: "رزان المحمد", dept: "HR", date: "2022-02-14", salary: 500000 },
+            { id: 6, name: "نور العلي", dept: "Sales", date: "2020-08-30", salary: 300000 },
+            { id: 7, name: "ميسون علي", dept: "IT", date: "2019-12-12", salary: 400000 },
+            { id: 8, name: "علا عثمان", dept: "HR", date: "2021-06-01", salary: 700000 }
+        ];
+
+        let currentEmployees = [...originalEmployees];
+
+        // Section 4: VLOOKUP Data
+        const vlookupDest = [
+            { name: "أحمد علي", salary: 300000, loan: null },
+            { name: "نور محمد", salary: 400000, loan: null },
+            { name: "رهف العلي", salary: 700000, loan: null }, // Has loan error in source context usually, but let's follow PDF logic
+            { name: "كريم المحمد", salary: 700000, loan: null },
+            { name: "محمد ديب", salary: 700000, loan: null }, // Not in source
+            { name: "كرم علي", salary: 400000, loan: null }   // Not in source
+        ];
+
+        // Based on the PDF "Source" table image (approximate reconstruction)
+        const vlookupSource = [
+            { name: "أحمد علي", amount: 500000 },
+            { name: "كريم المحمد", amount: 1000000 },
+            { name: "ميسون علي", amount: 1000000 },
+            { name: "أحمد علي", amount: 500000 }, // Duplicate in source example? simplified unique
+            { name: "نور ياسين", amount: 750000 }
+        ];
+
+
+        // --- INITIALIZATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAccordion();
+            renderTable(currentEmployees);
+            renderVlookupTables();
+            initChart();
+        });
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- SECTION 1: TABLE LOGIC ---
+
+        function initAccordion() {
+            const container = document.getElementById('table-accordion');
+            tableTopics.forEach((topic, index) => {
+                const div = document.createElement('div');
+                div.className = "border border-stone-200 rounded overflow-hidden";
+                div.innerHTML = `
+                    <button onclick="toggleAccordion(${index})" class="w-full text-right p-3 bg-stone-50 hover:bg-stone-100 font-bold text-stone-700 flex justify-between items-center">
+                        ${topic.title}
+                        <span id="icon-${index}">+</span>
+                    </button>
+                    <div id="content-${index}" class="hidden p-3 bg-white text-sm text-stone-600 border-t border-stone-100">
+                        ${topic.content}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleAccordion(index) {
+            const content = document.getElementById(`content-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.innerText = "-";
+            } else {
+                content.classList.add('hidden');
+                icon.innerText = "+";
+            }
+        }
+
+        // Demo Table Visuals
+        function toggleHeader() {
+            const head = document.querySelector('#demo-table-visual thead');
+            head.classList.toggle('hidden');
+        }
+
+        function toggleTotalRow() {
+            const foot = document.getElementById('table-total-row');
+            foot.classList.toggle('hidden');
+        }
+
+        function addDemoRow() {
+            const tbody = document.querySelector('#demo-table-visual tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `<td class="p-2 border bg-green-50">جديد</td><td class="p-2 border bg-green-50">0</td><td class="p-2 border bg-green-50">0</td>`;
+            tbody.appendChild(newRow);
+            // Auto scroll to bottom of table container
+            tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight;
+        }
+
+        function resetDemoTable() {
+            const tbody = document.querySelector('#demo-table-visual tbody');
+            tbody.innerHTML = `
+                <tr><td class="p-2 border">تفاح</td><td class="p-2 border">50</td><td class="p-2 border">100</td></tr>
+                <tr><td class="p-2 border">برتقال</td><td class="p-2 border">30</td><td class="p-2 border">80</td></tr>
+                <tr><td class="p-2 border">موز</td><td class="p-2 border">100</td><td class="p-2 border">50</td></tr>
+            `;
+            document.querySelector('#demo-table-visual thead').classList.remove('hidden');
+            document.getElementById('table-total-row').classList.add('hidden');
+        }
+
+
+        // --- SECTION 2: FILTER & SORT LOGIC ---
+
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            data.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-3 border-b border-stone-100 text-stone-800 font-medium">${emp.name}</td>
+                    <td class="p-3 border-b border-stone-100"><span class="bg-stone-100 text-stone-600 px-2 py-1 rounded text-xs">${emp.dept}</span></td>
+                    <td class="p-3 border-b border-stone-100 text-stone-500 text-sm dir-ltr text-right">${emp.date}</td>
+                    <td class="p-3 border-b border-stone-100 text-amber-700 font-bold text-sm dir-ltr text-right">${emp.salary.toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            const dept = document.getElementById('filter-dept').value;
+            const salaryOp = document.getElementById('filter-salary-op').value;
+            const salaryVal = document.getElementById('filter-salary-val').value;
+
+            let filtered = originalEmployees.filter(emp => {
+                let deptMatch = dept === 'all' || emp.dept === dept;
+                
+                let salaryMatch = true;
+                if (salaryVal) {
+                    const val = parseFloat(salaryVal);
+                    if (salaryOp === 'gt') salaryMatch = emp.salary > val;
+                    if (salaryOp === 'lt') salaryMatch = emp.salary < val;
+                    if (salaryOp === 'eq') salaryMatch = emp.salary === val;
+                }
+
+                return deptMatch && salaryMatch;
+            });
+
+            currentEmployees = filtered;
+            renderTable(currentEmployees);
+        }
+
+        function sortData(key, dir) {
+            currentEmployees.sort((a, b) => {
+                let valA = a[key];
+                let valB = b[key];
+
+                if (key === 'salary') {
+                    return dir === 'asc' ? valA - valB : valB - valA;
+                } else {
+                    return dir === 'asc' ? valA.localeCompare(valB, 'ar') : valB.localeCompare(valA, 'ar');
+                }
+            });
+            renderTable(currentEmployees);
+        }
+
+
+        // --- SECTION 3: FUNCTIONS LOGIC ---
+
+        function runFunction(type) {
+            let inputId = `input-${type.toLowerCase().replace('countblank', 'blank')}`;
+            let resId = `res-${type.toLowerCase().replace('countblank', 'blank')}`;
+            let rawVal = document.getElementById(inputId).value;
+            
+            // Handle split differently for blank check to allow empty strings between commas
+            let values;
+            if(type === 'COUNTBLANK') {
+                values = rawVal.split(','); // Preserve empty strings
+            } else {
+                values = rawVal.split(',').map(v => v.trim()).filter(v => v !== '');
+            }
+
+            let result = 0;
+
+            switch(type) {
+                case 'COUNT':
+                    // Counts numbers only
+                    result = values.filter(v => !isNaN(parseFloat(v)) && isFinite(v)).length;
+                    break;
+                case 'COUNTA':
+                    // Counts non-empty cells
+                    result = values.filter(v => v.trim() !== '').length;
+                    break;
+                case 'COUNTBLANK':
+                    // Counts empty strings from the split array
+                    result = values.filter(v => v.trim() === '').length;
+                    break;
+                case 'MAX':
+                    let nums = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+                    result = nums.length > 0 ? Math.max(...nums) : 0;
+                    break;
+                case 'UPPER':
+                    result = rawVal.toUpperCase();
+                    break;
+                case 'PRODUCT':
+                     let pNums = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+                     result = pNums.length > 0 ? pNums.reduce((a, b) => a * b, 1) : 0;
+                     break;
+            }
+
+            document.getElementById(resId).innerText = result;
+        }
+
+
+        // --- SECTION 4: VLOOKUP LOGIC ---
+
+        function renderVlookupTables() {
+            // Source
+            const sourceBody = document.getElementById('vlookup-source-body');
+            sourceBody.innerHTML = '';
+            vlookupSource.forEach(row => {
+                sourceBody.innerHTML += `
+                    <tr>
+                        <td class="p-2 border-b text-stone-600">${row.name}</td>
+                        <td class="p-2 border-b text-stone-600 font-mono">${row.amount.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            renderDestTable();
+        }
+
+        function renderDestTable() {
+             const destBody = document.getElementById('vlookup-dest-body');
+             destBody.innerHTML = '';
+             vlookupDest.forEach(row => {
+                let loanDisplay = '-';
+                let cellClass = "bg-stone-50 text-stone-400";
+
+                if (row.loan === 'error') {
+                    loanDisplay = '#N/A';
+                    cellClass = "bg-red-50 text-red-600 font-bold";
+                } else if (row.loan === 0 && row.isFixed) {
+                     loanDisplay = '0';
+                     cellClass = "bg-green-50 text-green-700 font-bold";
+                } else if (row.loan !== null) {
+                    loanDisplay = row.loan.toLocaleString();
+                    cellClass = "bg-amber-50 text-amber-800 font-bold";
+                }
+
+                destBody.innerHTML += `
+                    <tr>
+                        <td class="p-2 border-b">${row.name}</td>
+                        <td class="p-2 border-b font-mono text-stone-500">${row.salary.toLocaleString()}</td>
+                        <td class="p-2 border-b ${cellClass} transition-all duration-500">${loanDisplay}</td>
+                    </tr>
+                `;
+             });
+        }
+
+        function runVlookup() {
+            vlookupDest.forEach(destRow => {
+                const match = vlookupSource.find(src => src.name === destRow.name);
+                if (match) {
+                    destRow.loan = match.amount;
+                } else {
+                    destRow.loan = 'error';
+                }
+                destRow.isFixed = false; // Reset IFERROR state
+            });
+            renderDestTable();
+            document.getElementById('vlookup-status').classList.remove('hidden');
+        }
+
+        function runIferror() {
+            vlookupDest.forEach(destRow => {
+                // Rerun logic or check current state
+                const match = vlookupSource.find(src => src.name === destRow.name);
+                if (!match) {
+                    destRow.loan = 0;
+                    destRow.isFixed = true;
+                } else {
+                    destRow.loan = match.amount;
+                }
+            });
+            renderDestTable();
+        }
+
+        function resetVlookup() {
+            vlookupDest.forEach(row => { row.loan = null; row.isFixed = false; });
+            renderDestTable();
+            document.getElementById('vlookup-status').classList.add('hidden');
+        }
+
+        // --- CHART JS ---
+        function initChart() {
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+            
+            // Prepare data from originalEmployees
+            const names = originalEmployees.map(e => e.name);
+            const salaries = originalEmployees.map(e => e.salary);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: names,
+                    datasets: [{
+                        label: 'راتب الموظف',
+                        data: salaries,
+                        backgroundColor: '#d97706', // Amber 600
+                        borderRadius: 4,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                            labels: {
+                                font: { family: 'Cairo' }
+                            }
+                        },
+                        tooltip: {
+                            titleFont: { family: 'Cairo' },
+                            bodyFont: { family: 'Cairo' },
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + ' ل.س';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                drawBorder: false,
+                                color: '#f5f5f4'
+                            },
+                            ticks: {
+                                font: { family: 'Cairo' }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { family: 'Cairo' },
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
