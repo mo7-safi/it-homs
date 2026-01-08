@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>اختبار المبادئ - عملي</title>
+    <!-- استيراد خط عربي جميل من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-color: #764ba2;
+            --accent-color: #00d2ff;
+            --success-color: #2ecc71;
+            --success-bg: #eafaf1;
+            --error-color: #e74c3c;
+            --error-bg: #fdeaea;
+            --card-bg: #ffffff;
+            --text-color: #2d3436;
+            --bg-color: #f0f2f5;
+            --tab-active-bg: #ffffff;
+            --tab-inactive-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        /* تعيين حجم الخط الأساسي للجذر ليعمل التكبير والتصغير */
+        html {
+            font-size: 16px; 
+            transition: font-size 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+        /* رأس الصفحة */
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 15px 15px 15px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+        }
+
+        .disclaimer {
+            background: rgba(0, 0, 0, 0.2);
+            color: #ffeb3b;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: bold;
+            border: 1px solid rgba(255, 235, 59, 0.3);
+        }
+
+        /* شريط التبويبات */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--tab-inactive-bg);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            flex: 1 1 calc(25% - 10px); /* توزيع متساوي */
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--tab-active-bg);
+            color: var(--secondary-color);
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border-color: white;
+        }
+
+        /* شريط التحكم العائم */
+        .controls-sticky {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin: 10px 0 20px 0;
+        }
+
+        .font-controls button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-left: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .font-controls button:active {
+            transform: scale(0.9);
+        }
+
+        /* الحاوية الرئيسية */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* بطاقة السؤال */
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.02);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .lecture-tag {
+            background: #f1f2f6;
+            color: #7f8c8d;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .q-number {
+            color: var(--secondary-color);
+            font-weight: 700;
+            font-size: 1rem;
+            background: rgba(118, 75, 162, 0.1);
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        /* شبكة الخيارات */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #eef2f7;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: right;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+        }
+
+        .option-btn:hover {
+            border-color: #d1d8e0;
+            background: #f8f9fa;
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .option-btn.correct {
+            background-color: var(--success-bg);
+            border-color: var(--success-color);
+            color: #155724;
+            padding-left: 40px;
+        }
+
+        .option-btn.correct::after {
+            content: '✔';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--success-color);
+        }
+
+        .option-btn.wrong {
+            background-color: var(--error-bg);
+            border-color: var(--error-color);
+            color: #721c24;
+            padding-left: 40px;
+            opacity: 0.8;
+        }
+
+        .option-btn.wrong::after {
+            content: '✖';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--error-color);
+        }
+
+        /* صندوق التلميح */
+        .hint-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff8e1;
+            border-right: 4px solid #ffca28;
+            border-radius: 8px;
+            color: #795548;
+            font-size: 0.95rem;
+            display: none;
+            animation: fadeInUp 0.4s ease-out;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* الشريط السفلي العائم */
+        .floating-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        
+        .score-info {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .finish-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+        }
+
+        /* شاشة النتائج */
+        .results-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            animation: zoomIn 0.3s;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .final-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(118, 75, 162, 0.2);
+        }
+
+        .btn-restart {
+            background: var(--text-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>اختبار المبادئ (عملي)</h1>
+        <div class="disclaimer">هذه الاسئلة اجتهاد شخصي وليس دورات</div>
+        
+        <!-- التبويبات -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab(0)">المحاضرة 1</button>
+            <button class="tab-btn" onclick="switchTab(1)">المحاضرة 2</button>
+            <button class="tab-btn" onclick="switchTab(2)">المحاضرة 3</button>
+            <button class="tab-btn" onclick="switchTab(3)">المحاضرة 4</button>
+        </div>
+    </div>
+
+    <div class="controls-sticky">
+        <div style="font-weight: 700; color: var(--secondary-color);">الأسئلة: <span id="q-range">1-25</span></div>
+        <div class="font-controls">
+            <button onclick="adjustFont(-1)">A-</button>
+            <button onclick="adjustFont(1)">A+</button>
+        </div>
+    </div>
+    
+    <div class="container" id="quiz-container">
+        <!-- سيتم توليد الأسئلة هنا -->
+    </div>
+
+    <div class="floating-bar">
+        <div class="score-info">النتيجة: <span id="current-score">0</span> / 100</div>
+        <button class="finish-btn" onclick="showResults()">إنهاء الاختبار</button>
+    </div>
+
+    <!-- نافذة النتيجة النهائية -->
+    <div class="results-modal" id="results-modal">
+        <div class="results-card">
+            <div class="final-circle" id="final-percent">0%</div>
+            <h2 id="final-msg">ممتاز!</h2>
+            <p>لقد أجبت بشكل صحيح على <span id="final-count">0</span> سؤال.</p>
+            <button class="btn-restart" onclick="location.reload()">إعادة الاختبار</button>
+            <button style="background:transparent; color:#777; border:none; margin-top:10px; cursor:pointer" onclick="closeModal()">مراجعة الإجابات</button>
+        </div>
+    </div>
+
+    <script>
+        // البيانات المستخرجة بدقة كاملة
+        const questions = [
+            // --- المحاضرة الأولى (Word 1) ---
+            {
+                q: "يعتبر نظام التشغيل (Operating System) من المكونات:",
+                options: ["المادية (Hardware)", "البرمجية (Software) وهو حلقة وصل بين المستخدم والحاسب", "البرمجية المسؤولة عن التخزين فقط", "المادية المسؤولة عن المعالجة"],
+                answer: 1,
+                hint: "نظام التشغيل هو 'المدير' الذي يحوي الأوامر، بينما المعالج (CPU) هو قطعة مادية تنفذ العمليات . لا تخلط بينه وبين المعالج."
+            },
+            {
+                q: "عند الرغبة في معرفة مواصفات الجهاز (RAM, Processor) نقوم بـ:",
+                options: ["فتح لوحة التحكم", "الضغط بزر الماوس اليمين على أيقونة جهاز الحاسب واختيار خصائص", "فتح برنامج Word", "الضغط على زر الطاقة"],
+                answer: 1,
+                hint: "هذه الطريقة الأسرع لمعرفة مواصفات الـ 'System' و Device specifications."
+            },
+            {
+                q: "اللاحقة (Extension) لملفات برنامج Microsoft Word في الإصدارات الحديثة هي:",
+                options: [".exe", ".xlsx", ".docx", ".txt"],
+                answer: 2,
+                hint: "انتبه اللاحقة .exe مخصصة للبرامج التنفيذية، و .xlsx للإكسل. الـ docx تشير للإصدارات الحديثة (XML) في نهاية."
+            },
+            {
+                q: "لفتح مستند جديد فارغ (New Document) نستخدم الاختصار:",
+                options: ["Ctrl + O", "Ctrl + N", "Ctrl + S", "Ctrl + W"],
+                answer: 1,
+                hint: "تذكر الحرف الأول من كلمة New. أما Ctrl + O فهي لفتح ملف موجود (Open)."
+            },
+            {
+                q: "الفرق الجوهري بين 'حفظ' (Save) و 'حفظ باسم' (Save As) عند التعامل مع ملف محفوظ مسبقاً:",
+                options: ["لا يوجد فرق", "'حفظ' تحفظ التعديلات على نفس الملف، بينما 'حفظ باسم' تنشئ نسخة جديدة باسم أو مكان مختلف", "'حفظ باسم' تحذف الملف القديم", "'حفظ' تستخدم فقط للملفات الجديدة"],
+                answer: 1,
+                hint: "إذا ضغطت 'حفظ' على ملف موجود، لن يسألك عن الاسم والمكان، سيحفظ فوراً فوق القديم."
+            },
+            {
+                q: "المسار الافتراضي الذي يحفظ فيه برنامج Word المستندات عادة هو:",
+                options: ["Desktop", "Documents (المستندات)", "Downloads", "Program Files"],
+                answer: 1,
+                hint: "يمكن تغيير هذا المسار من خيارات البرنامج، لكن افتراضياً يبحث الجهاز عن مجلد المستخدم ثم Documents."
+            },
+            {
+                q: "لإضافة صفحة غلاف (Cover Page) للمستند، نذهب لتبويب:",
+                options: ["تخطيط (Layout)", "إدراج (Insert)", "تصميم (Design)", "ملف (File)"],
+                answer: 1,
+                hint: "قد يظن البعض أنها في 'تصميم' لأنها تتعلق بالشكل، لكننا نقوم فعلياً بـ 'إدراج' صفحة جديدة، لذا فهي في قائمة Insert."
+            },
+            {
+                q: "لحذف صفحة فارغة، نضع المؤشر في بدايتها ثم نضغط:",
+                options: ["Enter", "Shift", "Backspace (مسافة للخلف)", "Space"],
+                answer: 2,
+                hint: "الحذف يتم بالرجوع للخلف لإزالة الفراغ الذي يشكل الصفحة."
+            },
+            {
+                q: "لجعل الصفحات الفردية لها رأس وتذييل مختلف عن الصفحات الزوجية ...",
+                options: ["لا يمكن فعل ذلك", "ندرج مقطعاً جديداً", "نختار صفحات فردية وزوجية مختلفة من تبويب تصميم أدوات الرأس والتذييل", "نكتب يدوياً في كل صفحة"],
+                answer: 2,
+                hint: "هذا الخيار مفيد جداً في الكتب مثل وضع اسم الفصل يمين الصفحة واسم الكتاب يسار الصفحة المقابلة."
+            },
+            {
+                q: "إذا أردت بدء ترقيم الصفحات من الرقم 1 في الصفحة الثانية (بعد الغلاف)، يجب وضع 'بدء الترقيم' بـ:",
+                options: ["10", "0", "2", "لا يمكن ذلك"],
+                answer: 1,
+                hint: "خدعة ذكية! إذا وضعت الغلاف رقم 0، ستصبح الصفحة التالية تلقائياً رقم 1."
+            },
+            {
+                q: "لتحديد 'فقرة' كاملة باستخدام الماوس:",
+                options: ["نقرة واحدة", "نقرتان مزدوجتان", "ثلاث نقرات متتالية فوق أي مكان بالفقرة", "السحب المستمر فقط"],
+                answer: 2,
+                hint: "نقرتان تحددان 'كلمة'، ثلاث نقرات تحدد 'فقرة' كاملة."
+            },
+            {
+                q: "الاختصار Ctrl + U يقوم بـ:",
+                options: ["جعل الخط غامقاً (Bold)", "جعل الخط مائلاً (Italic)", "تسطير النص (Underline)", "التراجع (Undo)"],
+                answer: 2,
+                hint: "تذكر الحرف الأول من Underline. أما التراجع فهو Ctrl+Z."
+            },
+            {
+                q: "لحذف النص الموجود 'أمام' المؤشر نستخدم:",
+                options: ["Backspace", "Delete", "Space", "End"],
+                answer: 1,
+                hint: "الأغلبية يستخدمون Backspace وهي تحذف ما 'خلف' المؤشر (ما كتبته للتو)، أما Delete فهي 'تأكل' ما هو قادم أمام المؤشر."
+            },
+            {
+                q: "الفاصل الذي نستخدمه للبدء بـ 'سطر جديد ضمن نفس الفقرة' وليس فقرة جديدة هو:",
+                options: ["Enter", "Ctrl + Enter", "Shift + Enter", "Tab"],
+                answer: 2,
+                hint: "Enter العادية تنهي الفقرة وتبدأ فقرة جديدة بخصائص جديدة. Shift + Enter تبقيك في نفس 'البيت' (الفقرة) لكن في سطر جديد."
+            },
+            {
+                q: "وظيفة 'نسخ التنسيق' (Format Painter):",
+                options: ["نسخ النص ولصقه", "نسخ خصائص النص (لون، حجم، نوع خط) وتطبيقها على نص آخر", "حذف التنسيق", "تلوين الخلفية"],
+                answer: 1,
+                hint: "الأداة التي تشبه 'الفرشاة'. هي لا تنقل الكلام، بل تنقل 'شكل' الكلام."
+            },
+            {
+                q: "للبحث عن كلمة واستبدالها بكلمة أخرى، نستخدم الأمر:",
+                options: ["بحث (Find)", "استبدال (Replace)", "انتقال إلى (Go To)", "تحديد (Select)"],
+                answer: 1,
+                hint: "البحث يجد الكلمة فقط، الاستبدال يجدها ويغيرها. الاختصار هو Ctrl+H."
+            },
+            {
+                q: "عند استخدام 'علامة جدولة عشرية' (Decimal Tab)، تتم محاذاة الأرقام بناءً على:",
+                options: ["الرقم الأول من اليسار", "الرقم الأول من اليمين", "الفاصلة العشرية", "حجم الخط"],
+                answer: 2,
+                hint: "مهمة جداً في الفواتير والأرقام المالية لتظهر الفواصل تحت بعضها بدقة."
+            },
+            {
+                q: "لتكبير حجم الخط باستخدام لوحة المفاتيح نستخدم:",
+                options: ["Ctrl + C", "Ctrl + Shift + >", "Ctrl + S", "Alt + F4"],
+                answer: 1,
+                hint: "القوس > يشبه فكرة 'الأكبر'، لذا فهو للتكبير."
+            },
+            {
+                q: "لإدراج 'فاصل صفحات' (Page Break) والانتقال لصفحة جديدة فوراً:",
+                options: ["نضغط Enter عدة مرات", "Ctrl + Enter", "Shift + Enter", "Alt + Enter"],
+                answer: 1,
+                hint: "لا تستخدم Enter المتكرر أبداً للانتقال لصفحة جديدة، لأنه سيخرب التنسيق إذا أضفت نصاً لاحقاً. استخدم الفاصل القاطع Ctrl+Enter."
+            },
+            {
+                q: "ما هي الأداة التي تستخدم لنسخ نص ولصقه في مكان آخر؟",
+                options: ["الحافظة (Clipboard)", "الخط (Font)", "الفقرة (Paragraph)", "الأنماط (Styles)"],
+                answer: 0,
+                hint: "الحافظة هي الذاكرة المؤقتة التي تحتفظ بما نسخته."
+            },
+            {
+                q: "في تنسيق الفقرة، يعني 'الضبط' (Justify):",
+                options: ["توسيط النص", "جعل نهايات الأسطر متساوية من الجانبين", "محاذاة لليسار", "تغيير لون الخط"],
+                answer: 1,
+                hint: "يجعل النص يبدو كأعمدة الجرائد، مرتباً من اليمين واليسار."
+            },
+            {
+                q: "لإزالة رأس وتذييل الصفحة من المستند بأكمله:",
+                options: ["نحذف النص يدوياً من كل صفحة", "نختار 'إزالة رأس / تذييل' من قائمة 'إدراج' - 'رأس وتذييل'", "نغلق الملف", "نغير الهوامش"],
+                answer: 1,
+                hint: "الحذف اليدوي قد يترك بقايا أو فراغات. الخيار البرمجي 'إزالة' هو الأضمن."
+            },
+            {
+                q: "عند كتابة النصوص العربية، يجب وضع المسافة:",
+                options: ["قبل علامات الترقيم", "بعد علامات الترقيم", "قبل وبعد علامات الترقيم", "لا يهم"],
+                answer: 1,
+                hint: "الخطأ الشائع هو وضع مسافة قبل الفاصلة. الصحيح: 'كتبت، وقرأت' وليس 'كتبت ، وقرأت'."
+            },
+            {
+                q: "التنسيق الافتراضي لحفظ ملفات قوالب الوورد (Templates) هو:",
+                options: [".docx", ".dotx", ".pdf", ".txt"],
+                answer: 1,
+                hint: "حرف t في الوسط يرمز لـ Template."
+            },
+            {
+                q: "لفتح نافذة الطباعة مباشرة نستخدم الاختصار:",
+                options: ["Ctrl + P", "Ctrl + O", "Ctrl + S", "Ctrl + V"],
+                answer: 0,
+                hint: "P تعني Print."
+            },
+
+            // --- المحاضرة الثانية (Word 2) ---
+            {
+                q: "لإدراج معادلة رياضية معقدة (جذور، كسور) نستخدم ...",
+                options: ["كتابتها يدوياً بالأحرف", "إدراج > رموز > معادلة", "إدراج > صورة", "تخطيط > أعمدة"],
+                answer: 1,
+                hint: "الوورد يوفر محرر معادلات خاص للرموز الرياضية التي لا توجد في الكيبورد."
+            },
+            {
+                q: "لحفظ معادلة قمت بكتابتها لاستخدامها لاحقاً في مستندات أخرى:",
+                options: ["لا يمكن ذلك", "ننسخها ونلصقها في ملف نصي", "نختار 'حفظ التحديد إلى معرض المعادلات'", "نحفظ الملف كصورة"],
+                answer: 2,
+                hint: "هذه الميزة توفر عليك إعادة كتابة المعادلات الطويلة في كل مرة."
+            },
+            {
+                q: "عند التعامل مع الجداول، لحساب مجموع الأرقام في الخلايا التي على يمين الخلية الحالية نستخدم الصيغة:",
+                options: ["=SUM(LEFT)", "=SUM(RIGHT)", "=SUM(ABOVE)", "=TOTAL(ALL)"],
+                answer: 1,
+                hint: "انتبه للاتجاه! إذا كانت الأرقام 'على اليمين' وأنت في الخلية اليسرى، فالصيغة اجمع ما في اليمين (RIGHT)."
+            },
+            {
+                q: "تعني RnCn في صيغ الجداول الإشارة المرجعية:",
+                options: ["الصف والعمود", "تكرار الخلية", "حذف الخلية", "دمج الخلايا"],
+                answer: 0,
+                hint: "R ترمز لـ Row (سطر)، و C ترمز لـ Column (عمود)."
+            },
+            {
+                q: "إذا أردت حساب المعدل لعدة خلايا الدالة الصحيحة هي:",
+                options: ["AVG", "MEAN", "AVERAGE", "COUNT"],
+                answer: 2,
+                hint: "في الوورد والإكسل، الدالة تكتب كاملة AVERAGE وليس اختصاراً مثل بعض لغات البرمجة."
+            },
+            {
+                q: "لإدراج لقطة شاشة (Screenshot) لنافذة مفتوحة فوراً دون مغادرة الوورد:",
+                options: ["نضغط PrtScn ثم لصق", "إدراج > لقطة شاشة", "نصور الشاشة بالموبايل", "ملف > استيراد"],
+                answer: 1,
+                hint: "هذه الميزة تظهر لك النوافذ المفتوحة حالياً لتختار منها مباشرة."
+            },
+            {
+                q: "'العلامة المائية' (Watermark) هي:",
+                options: ["لون الخط", "نص أو صورة باهتة تظهر خلف النص الأصلي للمستند", "حدود الصفحة", "ترويسة الصفحة"],
+                answer: 1,
+                hint: "تستخدم غالباً لكتابة 'سري' أو 'مسودة' أو شعار الجامعة بشكل لا يعيق القراءة."
+            },
+            {
+                q: "لإزالة العلامة المائية نذهب إلى:",
+                options: ["تحديدها وحذفها بزر Delete", "تبويب تصميم > علامة مائية > إزالة العلامة المائية", "لا يمكن إزالتها", "تغيير لون الصفحة للأبيض"],
+                answer: 1,
+                hint: "بما أنها جزء من 'خلفية الصفحة'، لا يمكنك تحديدها بسهولة بالماوس كالنص العادي."
+            },
+            {
+                q: "لإنشاء جدول محتويات (فهرس) آلياً، يجب أولاً:",
+                options: ["كتابة أرقام الصفحات يدوياً", "تحديد العناوين وتطبيق 'مستويات' (Level 1, Level 2) عليها من تبويب مراجع", "رسم جدول فارغ", "استخدام الخط العريض للعناوين"],
+                answer: 1,
+                hint: "الوورد لا يعرف ما هو 'العنوان' إلا إذا أخبرته بذلك عبر تحديد 'المستوى' (Add Text > Level 1)."
+            },
+            {
+                q: "إذا قمت بتعديل عناوين المستند أو أرقام الصفحات، لتحديث الفهرس:",
+                options: ["نحذف الجدول وننشئه من جديد", "نضغط 'تحديث الجدول' (Update Table) من تبويب مراجع", "نكتب التعديلات يدوياً", "نغلق الملف ونفتحه"],
+                answer: 1,
+                hint: "الفهرس لا يحدث نفسه تلقائياً لحظياً، يجب أن تطلب منه التحديث."
+            },
+            {
+                q: "الفرق بين الحاشية السفلية (Footnote) والتعليق الختامي (Endnote):",
+                options: ["الحاشية أسفل كل صفحة، والتعليق الختامي في نهاية المستند", "الحاشية في النهاية، والتعليق الختامي أسفل الصفحة", "لا يوجد فرق", "الحاشية للأرقام والتعليق للنصوص"],
+                answer: 0,
+                hint: "الحاشية لشرح كلمة في نفس الصفحة. الختامي للمراجع العامة في آخر البحث."
+            },
+            {
+                q: "دمج المراسلات (Mail Merge) يستخدم لـ:",
+                options: ["دمج ملفين وورد مع بعضهما", "إنشاء مستندات متعددة مثل شهادات بناءً على قالب واحد وقائمة بيانات", "إرسال إيميل لمطور البرنامج", "دمج الصور مع النص"],
+                answer: 1,
+                hint: "فكر فيها كـ: قالب واحد + أسماء كثيرة = شهادات كثيرة."
+            },
+            {
+                q: "في دمج المراسلات، الملف الذي يحوي أسماء الطلاب وعلاماتهم يسمى:",
+                options: ["المستند الأساسي", "مصدر البيانات (Data Source)", "الحقل المدمج", "ملف الإخراج"],
+                answer: 1,
+                hint: "هو 'المصدر' الذي يغذي الشهادات بالمعلومات (غالباً ملف إكسل)."
+            },
+            {
+                q: "لتفعيل ميزة 'تعقب التغييرات' (Track Changes) لمعرفة كل تعديل يحدث على الملف:",
+                options: ["من تبويب عرض", "من تبويب مراجعة > تعقب التغييرات", "من تبويب ملف", "بالضغط على Ctrl + T"],
+                answer: 1,
+                hint: "أي شيء يتعلق بالتصحيح والمراقبة تجده في تبويب 'مراجعة' (Review)."
+            },
+            {
+                q: "لمنع أي شخص من إيقاف 'تعقب التغييرات'، يجب:",
+                options: ["إخفاء الملف", "حماية المستند بكلمة مرور عبر 'تقييد التحرير'", "حفظ الملف بصيغة PDF", "حذف تبويب مراجعة"],
+                answer: 1,
+                hint: "القفل ضروري وإلا سيقوم الشخص ببساطة بإطفاء الزر وإجراء تعديلات سرية."
+            },
+            {
+                q: "طريقة العرض 'تخطيط الطباعة' (Print Layout):",
+                options: ["تعرض الملف كما سيظهر عند الطباعة (مع الهوامش)", "تعرض النص فقط كصفحة ويب", "تعرض العناوين فقط", "للقراءة فقط"],
+                answer: 0,
+                hint: "هذا هو الوضع الافتراضي والأكثر استخداماً أثناء العمل."
+            },
+            {
+                q: "طريقة العرض التي تعرض النص فقط للقراءة بدون أدوات التحرير تسمى:",
+                options: ["مسودة", "وضع القراءة (Read Mode)", "مخطط تفصيلي", "تخطيط ويب"],
+                answer: 1,
+                hint: "يحول الشاشة لما يشبه الكتاب الإلكتروني للتركيز على القراءة."
+            },
+            {
+                q: "الاختصار Ctrl + E يقوم بـ:",
+                options: ["محاذاة النص لليمين", "توسيط النص (Center)", "إنهاء البرنامج", "محاذاة لليسار"],
+                answer: 1,
+                hint: "لماذا E؟ لأن C محجوزة للنسخ (Copy). الكلمة Center ثاني حرف فيها E."
+            },
+            {
+                q: "الاختصار Ctrl + Z وظيفته:",
+                options: ["القص", "التراجع عن آخر إجراء", "اللصق", "التكرار"],
+                answer: 1,
+                hint: "أهم اختصار في العالم ينقذك عند الخطأ."
+            },
+            {
+                q: "لإدراج 'جدول' نذهب لتبويب:",
+                options: ["تخطيط", "إدراج (Insert)", "ملف", "عرض"],
+                answer: 1,
+                hint: "أي شيء تريد إضافته للملف (صورة، جدول، صفحة) تجده في 'إدراج'."
+            },
+            {
+                q: "ما وظيفة 'قاموس المرادفات' (Thesaurus)؟",
+                options: ["ترجمة النص", "التصحيح الإملائي", "البحث عن كلمات مختلفة بنفس المعنى", "عد الكلمات"],
+                answer: 2,
+                hint: "مفيد جداً عند الكتابة الأدبية لتجنب تكرار نفس الكلمة."
+            },
+            {
+                q: "عند دمج المراسلات لطباعة الشهادات كملفات منفصلة أو تحريرها نختار:",
+                options: ["إنهاء ودمج > طباعة المستندات", "إنهاء ودمج > تحرير المستندات المفردة", "حفظ باسم", "إغلاق"],
+                answer: 1,
+                hint: "إذا اخترت 'طباعة' سيرسلها للطابعة فوراً. 'تحرير' يفتح لك ملف وورد جديد فيه كل الشهادات لتعدل عليها أو تحفظها."
+            },
+            {
+                q: "المراجع والاقتباسات (Citations) تستخدم لـ:",
+                options: ["تجميل النص", "حفظ حقوق المؤلف وتحديد المصدر الذي أخذت منه المعلومة", "إضافة صور", "إنشاء غلاف"],
+                answer: 1,
+                hint: "ضرورية في الأبحاث العلمية لتجنب السرقة الأدبية (Plagiarism)."
+            },
+            {
+                q: "التسميات التوضيحية (Captions) تظهر عادة:",
+                options: ["في رأس الصفحة", "تحت الصور أو الجداول أو المعادلات", "في الهوامش الجانبية فقط", "لا تظهر في الطباعة"],
+                answer: 1,
+                hint: "مثل: 'الشكل 1: صورة توضيحية للحاسب'."
+            },
+            {
+                q: "الاختصار Ctrl + Enter يقوم بـ:",
+                options: ["إنشاء سطر جديد", "تنفيذ الأمر", "إضافة صفحة جديدة (فاصل صفحات)", "حفظ الملف"],
+                answer: 2,
+                hint: "كما ذكرنا في المحاضرة الأولى، هذا هو الاختصار الرسمي لإنهاء الصفحة الحالية والبدء بجديدة."
+            },
+
+            // --- المحاضرة الثالثة (Excel 3) ---
+            {
+                q: "الامتداد (اللاحقة) الافتراضي لملفات Excel 2016 هو:",
+                options: [".docx", ".txt", ".xlsx", ".xml"],
+                answer: 2,
+                hint: "حرف x في النهاية يميز النسخ الحديثة، والـ xls يرمز لـ Excel."
+            },
+            {
+                q: "لإدراج سطر جديد للكتابة داخل نفس الخلية دون الانتقال للخلية التالية نضغط:",
+                options: ["Enter", "Alt + Enter", "Tab", "Ctrl + N"],
+                answer: 1,
+                hint: "الضغط على Enter لوحده سينقلك للخلية التي في الأسفل، بينما Alt يخبر الإكسل أنك تريد البقاء في نفس الصندوق."
+            },
+            {
+                q: "لإدراج تاريخ اليوم الحالي فوراً في الخلية نستخدم الاختصار:",
+                options: ["Ctrl + D", "Ctrl + ; (فاصلة منقوطة)", "Shift + ;", "Ctrl + T"],
+                answer: 1,
+                hint: "تذكر أن الوقت يحتاج لضغط زر إضافي (Ctrl+Shift+;)، أما التاريخ فهو الأبسط (Ctrl + ;)."
+            },
+            {
+                q: "إذا ظهرت الرموز ###### داخل الخلية بدلاً من الرقم، فهذا يعني:",
+                options: ["وجود خطأ في المعادلة", "عرض العمود لا يتسع لإظهار الرقم كاملاً", "الرقم سالب", "الخلية محمية"],
+                answer: 1,
+                hint: "لا تخف، بياناتك سليمة! فقط قم بتوسيع العمود قليلاً."
+            },
+            {
+                q: "عند كتابة الرقم 1 في خلية وتغيير تنسيقها إلى 'تاريخ'، سيظهر التاريخ:",
+                options: ["2000/1/1", "1900/1/1", "تاريخ اليوم", "خطأ"],
+                answer: 1,
+                hint: "الإكسل يبدأ عد الزمن من 1900/1/1، فالرقم 1 يمثل اليوم الأول في 'عمر' الإكسل."
+            },
+            {
+                q: "لتحديد خلايا 'غير متجاورة' (متباعدة) نضغط باستمرار أثناء التحديد على مفتاح:",
+                options: ["Shift", "Ctrl", "Alt", "Tab"],
+                answer: 1,
+                hint: "مفتاح Shift يحدد مجالاً متصلاً (من.. إلى)، بينما Ctrl يحدد هذا.. وهذا.. وهذا."
+            },
+            {
+                q: "مقبض التعبئة (Fill Handle) هو:",
+                options: ["شريط العنوان", "المربع الأسود الصغير في الزاوية السفلية للتحديد", "زر الحفظ", "أداة القص"],
+                answer: 1,
+                hint: "هو الأداة السحرية في إكسل لنسخ المعادلات أو إكمال السلاسل (الأرقام، أيام الأسبوع) بالسحب."
+            },
+            {
+                q: "إذا كتبت الرقم 1 في خلية وسحبت مقبض التعبئة مع الضغط على Ctrl سيقوم الإكسل بـ:",
+                options: ["نسخ الرقم 1 فقط", "تعبئة سلسلة متزايدة (1، 2، 3...)", "مسح الخلية", "تلوين الخلية"],
+                answer: 1,
+                hint: "السحب العادي ينسخ الرقم. السحب مع Ctrl ينشئ تسلسلاً. (أو يمكنك كتابة 1 ثم 2 وتحديدهما معاً والسحب)."
+            },
+            {
+                q: "لإخفاء عمود معين، يمكننا تغيير عرض العمود ليصبح:",
+                options: ["1", "0", "10", "تلقائي"],
+                answer: 1,
+                hint: "العمود المخفي موجود لكن عرضه صفر. لإظهاره يجب تحديد العمودين المحيطين به واختيار 'إظهار'."
+            },
+            {
+                q: "عند دمج خليتين تحتويان على بيانات (Merge)، سيحتفظ الإكسل ببيانات:",
+                options: ["الخليتين معاً", "الخلية العلوية اليمنى فقط (أو اليسرى حسب اللغة)", "الخلية السفلية", "يحذف جميع البيانات"],
+                answer: 1,
+                hint: "الدمج 'يأكل' البيانات الأخرى، لذلك يعطيك الإكسل تحذيراً قبل التنفيذ."
+            },
+            {
+                q: "الرمز المستخدم لدمج النصوص (Concatenation) في المعادلات هو:",
+                options: ["+", "&", "$", "#"],
+                answer: 1,
+                hint: "المعادلة 'A' & 'B' تعطي النتيجة AB."
+            },
+            {
+                q: "لتغيير اتجاه انتقال المؤشر عند الضغط على Enter (مثلاً لليمين بدلاً من الأسفل):",
+                options: ["لا يمكن ذلك", "من خيارات (Options) > خيارات متقدمة", "من تبويب عرض", "باستخدام الماوس فقط"],
+                answer: 1,
+                hint: "مفيدة جداً عند إدخال بيانات في جداول أفقية."
+            },
+            {
+                q: "'التنسيق الشرطي' (Conditional Formatting) يقوم بتنسيق الخلية:",
+                options: ["دائماً باللون الأحمر", "فقط إذا تحقق شرط معين (مثل: أكبر من 50)", "يحذف محتوى الخلية", "يغير نوع الخط فقط"],
+                answer: 1,
+                hint: "اسمه يدل عليه: 'تنسيق' مشروط بـ 'شرط'. (مثلاً تلوين الراسبين بالأحمر)."
+            },
+            {
+                q: "لتجميد الصف الأول بحيث يبقى ظاهراً عند التمرير للأسفل (Freeze Panes):",
+                options: ["نحدد الصف الأول ثم نضغط تجميد", "نحدد الصف 'أسفل' الصف المراد تجميده (الصف 2) ثم نختار تجميد الأجزاء", "نضغط تجميد بدون تحديد", "نستخدم 'انقسام' (Split)"],
+                answer: 1,
+                hint: "التجميد يتم دائماً لما هو 'فوق' أو 'يمين' التحديد الحالي."
+            },
+            {
+                q: "لحذف ورقة عمل (Worksheet):",
+                options: ["نضغط Delete من الكيبورد", "زر الماوس الأيمن على اسم الورقة > حذف", "من قائمة ملف > إغلاق", "تصغير الورقة"],
+                answer: 1,
+                hint: "انتبه! عملية حذف ورقة العمل لا يمكن التراجع عنها (Undo) عادةً."
+            },
+            {
+                q: "الارتفاع الافتراضي للصف (Row Height) يقاس بـ:",
+                options: ["الأحرف", "النقاط (Points) ويساوي تقريباً 12.75", "السنتيمتر", "البوصة"],
+                answer: 1,
+                hint: "عرض العمود يقاس بعدد الأحرف، أما ارتفاع الصف فيقاس بالنقاط مثل حجم الخط."
+            },
+            {
+                q: "لإدراج تعليق (Comment) على خلية:",
+                options: ["من تبويب 'مراجعة' > تعليق جديد", "من تبويب 'إدراج' > مربع نص", "الكتابة بجانب الخلية", "تغيير اسم الخلية"],
+                answer: 0,
+                hint: "يظهر مثلث أحمر صغير في زاوية الخلية يدل على وجود تعليق."
+            },
+            {
+                q: "دالة (Function) تستخدم لإظهار التاريخ والوقت الحاليين ومتغيرة باستمرار:",
+                options: ["TODAY()", "NOW()", "DATE()", "TIME()"],
+                answer: 1,
+                hint: "TODAY للتاريخ فقط. NOW للـ 'الآن' (تاريخ ووقت)."
+            },
+            {
+                q: "للبحث عن نص واستبداله في كامل المصنف (Workbook) وليس الورقة الحالية فقط:",
+                options: ["لا يمكن ذلك", "في المربع 'في' (Within) نختار 'مصنف' ضمن خيارات البحث", "نفتح كل ورقة ونبحث فيها", "نستخدم VLOOKUP"],
+                answer: 1,
+                hint: "عليك توسيع 'خيارات' (Options) في نافذة البحث لرؤية هذا الخيار."
+            },
+            {
+                q: "عند الضغط على Tab تنتقل الخلية النشطة:",
+                options: ["للأسفل", "لليسار أو لليمين حسب اتجاه الورقة", "للأعلى", "للصفحة التالية"],
+                answer: 1,
+                hint: "Enter عمودي، Tab أفقي."
+            },
+            {
+                q: "لإضافة مسافة بين نصين عند دمجهما بالمعادلات:",
+                options: ["نكتب &&", "نكتب & \" \" &", "نكتب Space", "نستخدم الجمع +"],
+                answer: 1,
+                hint: "الإكسل لا يفهم الفراغ إلا إذا وضعته بين علامتي تنصيص \" \"."
+            },
+            {
+                q: "لإدراج 'أعمدة' جديدة في ورقة العمل:",
+                options: ["نحدد العمود ثم نضغط Insert", "يتم الإدراج دائماً 'يسار' العمود المحدد أو يمينه حسب الاتجاه", "الخياران أ و ب صحيحان", "من تبويب ملف"],
+                answer: 2,
+                hint: "الإدراج يزيح العمود القديم ليفسح المجال للجديد."
+            },
+            {
+                q: "لتحديد ورقة العمل بالكامل (Select All):",
+                options: ["Ctrl + A", "النقر على المثلث في الزاوية العلوية لتقاطع العناوين", "الخياران أ و ب صحيحان", "تحديد أول خلية وآخر خلية يدوياً"],
+                answer: 2,
+                hint: "Ctrl+A قد تحدد الجدول الحالي فقط، ضغطها مرة ثانية يحدد الورقة كاملة."
+            },
+            {
+                q: "ما هو نوع البيانات 'المنطقية' (Logical) في إكسل؟",
+                options: ["الأرقام", "النصوص", "True / False", "التاريخ"],
+                answer: 2,
+                hint: "هي ناتج عمليات المقارنة (مثلاً: هل 5 > 3؟ الجواب True)."
+            },
+            {
+                q: "لإظهار محتوى الخلية الطويل في سطرين أو أكثر تلقائياً لتناسب عرض العمود نستخدم:",
+                options: ["دمج وتوسيط", "التفاف النص (Wrap Text)", "تغيير حجم الخط", "قص النص"],
+                answer: 1,
+                hint: "هذه الخاصية تجعل الخلية 'تطول' للأسفل لتستوعب الكلام بدلاً من اختفائه."
+            },
+
+            // --- المحاضرة الرابعة (Excel 4) ---
+            {
+                q: "لتحويل نطاق عادي من البيانات إلى 'جدول ذكي' (Table):",
+                options: ["نضع حدوداً للخلية", "إدراج (Insert) > جدول (Table)", "تخطيط الصفحة", "بيانات > تصفية"],
+                answer: 1,
+                hint: "الجدول الذكي يفتح لك تبويب 'تصميم' خاص ويوفر ميزات الفرز والتلوين التلقائي."
+            },
+            {
+                q: "لإضافة 'صف الإجمالي' (Total Row) تلقائياً في نهاية الجدول:",
+                options: ["نكتب كلمة المجموع ونجمع يدوياً", "من تبويب تصميم > تفعيل خيار 'صف الإجمالي'", "نستخدم دالة SUM", "لا يمكن فعله تلقائياً"],
+                answer: 1,
+                hint: "هذا الصف يوفر قوائم منسدلة لاختيار الدالة (مجموع، معدل..) دون كتابة معادلات."
+            },
+            {
+                q: "لإلغاء ميزات الجدول وتحويله لبيانات عادية (نطاق):",
+                options: ["تحذف الجدول", "من تبويب تصميم > تحويل إلى نطاق (Convert to Range)", "نسخ ولصق", "إزالة الحدود"],
+                answer: 1,
+                hint: "البيانات تبقى، لكن 'خصائص الجدول الذكي' تختفي."
+            },
+            {
+                q: "'التصفية' (Filtering) تعني:",
+                options: ["حذف البيانات غير المرغوبة", "إخفاء الصفوف التي لا تحقق شرطاً معيناً وعرض التي تحققه فقط", "ترتيب البيانات", "تلوين البيانات"],
+                answer: 1,
+                hint: "البيانات المختفية لم تحذف، هي فقط 'مخبأة' مؤقتاً."
+            },
+            {
+                q: "الدالة المسؤولة عن 'عد' الخلايا التي تحتوي على 'أرقام' فقط:",
+                options: ["COUNTA", "COUNT", "SUM", "COUNTBLANK"],
+                answer: 1,
+                hint: "COUNT للأرقام، COUNTA للكل (All) أي شيء غير فارغ."
+            },
+            {
+                q: "الدالة COUNTA تقوم بـ:",
+                options: ["عد الخلايا الفارغة", "عد الخلايا غير الفارغة (سواء نص أو رقم)", "جمع الأرقام", "حساب المتوسط"],
+                answer: 1,
+                hint: "حرف A في النهاية يرمز لـ Anything (أي شيء مكتوب)."
+            },
+            {
+                q: "لحساب عدد الخلايا 'الفارغة' تماماً في نطاق ما، نستخدم:",
+                options: ["COUNT", "COUNTBLANK", "EMPTY", "NULL"],
+                answer: 1,
+                hint: "Blank تعني فراغ."
+            },
+            {
+                q: "الدالة MAX(A1:A10) تعطي:",
+                options: ["مجموع الأرقام", "أصغر قيمة", "أكبر قيمة في النطاق", "المتوسط الحسابي"],
+                answer: 2,
+                hint: "الدالة عكسها MIN."
+            },
+            {
+                q: "دالة UPPER وظيفتها:",
+                options: ["رفع الرقم لقوة أسية", "تحويل الأحرف الإنجليزية الصغيرة إلى كبيرة (Capital Letters)", "تلوين الخط بالأحمر", "البحث في الأعلى"],
+                answer: 1,
+                hint: "مفيدة لتوحيد تنسيق الأسماء الإنجليزية."
+            },
+            {
+                q: "دالة PRODUCT تقوم بعملية:",
+                options: ["الجمع", "الضرب", "القسمة", "الإنتاج"],
+                answer: 1,
+                hint: "بدلاً من كتابة A1*A2*A3 نستخدم PRODUCT."
+            },
+            {
+                q: "في الدالة VLOOKUP، الوسيط الرابع [range_lookup] نضع فيه الرقم 0 (أو False) من أجل:",
+                options: ["التطابق التقريبي", "التطابق التام (Exact Match)", "البحث في الصف الأول", "إرجاع خطأ"],
+                answer: 1,
+                hint: "99% من استخدامنا يكون 'تطابق' تام (0)، لأننا نبحث عن كود موظف محدد أو رقم هوية لا يحتمل التقريب."
+            },
+            {
+                q: "إذا لم تجد دالة VLOOKUP القيمة المطلوبة، تظهر رسالة الخطأ:",
+                options: ["#VALUE!", "#N/A", "#DIV/0!", "#NAME?"],
+                answer: 1,
+                hint: "N/A تعني Not Available (غير متاح/موجود)."
+            },
+            {
+                q: "في دالة VLOOKUP(lookup_value, table_array, col_index_num, ...)، يشير col_index_num إلى:",
+                options: ["رقم الصف", "رقم العمود في الجدول الذي نريد جلب النتيجة منه", "رقم العمود الذي نبحث فيه", "عدد الأعمدة الكلي"],
+                answer: 1,
+                hint: "نحن نبحث في العمود الأول دائماً، لكن 'النتيجة' قد تكون في العمود 2 أو 3 أو 4..."
+            },
+            {
+                q: "لرؤية 'الصيغ' (المعادلات) المكتوبة في الخلايا بدلاً من نتائجها، نستخدم الاختصار:",
+                options: ["Ctrl + C", "Ctrl + ` (ذ)", "Alt + =", "F5"],
+                answer: 1,
+                hint: "يحول الشاشة لوضع 'الأشعة السينية' لكشف ما بداخل الخلايا."
+            },
+            {
+                q: "عند الفرز (Sorting) وتحديد خيار تحسس حالة الأحرف (Case Sensitive):",
+                options: ["يتم تجاهل الأحرف الكبيرة والصغيرة", "يتم التمييز بين A و a في الترتيب", "يتم فرز الأرقام فقط", "يتم تلوين الأحرف"],
+                answer: 1,
+                hint: "مهمة في كلمات السر أو الأكواد الحساسة."
+            },
+            {
+                q: "'عامل التصفية الديناميكي' للتواريخ يسمح لك بفلترة:",
+                options: ["تواريخ محددة يدوياً", "فترات زمنية متغيرة مثل 'غداً' أو 'الشهر القادم' أو 'الأسبوع الماضي'", "السنوات فقط", "الأرقام فقط"],
+                answer: 1,
+                hint: "ديناميكي يعني أنه يتغير مع الزمن (غداً سيصبح 'اليوم' بعد 24 ساعة)."
+            },
+            {
+                q: "عند إنشاء جدول، يتم تفعيل 'أزرار التصفية' (Filter Buttons) في الرأس:",
+                options: ["يدوياً دائماً", "تلقائياً وبشكل افتراضي", "لا يمكن تفعيلها", "في النسخ القديمة فقط"],
+                answer: 1,
+                hint: "هي الأسهم الصغيرة بجانب العناوين."
+            },
+            {
+                q: "لإزالة التكرارات (Remove Duplicates) من جدول:",
+                options: ["نحذفها بالنظر", "تبويب تصميم > إزالة التكرارات", "دالة DELETE", "التنسيق الشرطي"],
+                answer: 1,
+                hint: "سيحذف الإكسل الصفوف المكررة تماماً ويبقي نسخة فريدة واحدة."
+            },
+            {
+                q: "يمكن فرز البيانات حسب 'اللون' (Sort by Color):",
+                options: ["خطأ، الفرز للنصوص والأرقام فقط", "صح، يمكن الفرز حسب لون الخلية أو لون الخط", "فقط حسب لون الخط", "فقط في الجداول المحورية"],
+                answer: 1,
+                hint: "مفيدة جداً إذا كنت قد استخدمت التنسيق الشرطي لتمييز الراسبين بالأحمر وتريد جمعهم في الأعلى."
+            },
+            {
+                q: "الدالة VLOOKUP هي دالة بحث:",
+                options: ["أفقي", "عمودي (Vertical)", "قطري", "عشوائي"],
+                answer: 1,
+                hint: "حرف V يعني Vertical."
+            },
+            {
+                q: "لإضافة مستوى فرز ثانٍ (مثلاً فرز حسب الاسم ثم حسب التاريخ):",
+                options: ["لا يمكن، مستوى واحد فقط", "نضغط 'إضافة مستوى' (Add Level) في مربع حوار الفرز", "نفرز مرتين متتاليتين", "نستخدم دالة SORT"],
+                answer: 1,
+                hint: "هذا يسمى 'الفرز المخصص' (Custom Sort)."
+            },
+            {
+                q: "عند التصفية (Filter)، الخيار 'يبدأ بـ' (Begins with) يستخدم مع:",
+                options: ["الأرقام", "النصوص", "التواريخ", "الألوان"],
+                answer: 1,
+                hint: "مثلاً البحث عن كل الأسماء التي تبدأ بحرف 'م'."
+            },
+            {
+                q: "عند تحويل جدول إلى نطاق، ماذا يحدث للتنسيق (الألوان والخطوط)؟",
+                options: ["يختفي", "يبقى كما هو", "يتحول للأبيض والأسود", "يتم حذف البيانات"],
+                answer: 1,
+                hint: "الشكل يبقى جميلاً، لكن 'الذكاء' البرمجي للجدول يختفي."
+            },
+            {
+                q: "في تصفية الأرقام، يمكننا عرض الأرقام التي هي:",
+                options: ["أكبر من X", "بين X و Y", "تساوي X", "كل ما سبق"],
+                answer: 3,
+                hint: "خيارات الأرقام واسعة جداً وتشمل 'أعلى 10 قيم' أيضاً."
+            },
+            {
+                q: "الصيغة =MAX(A1:A5, 100) ستقوم بـ:",
+                options: ["إرجاع أكبر قيمة في الخلايا فقط", "مقارنة القيم في الخلايا مع الرقم 100 وإرجاع الأكبر بينهم", "إضافة 100 للمجموع", "تعطي خطأ"],
+                answer: 1,
+                hint: "الدالة تقارن كل ما بداخل الأقواس، سواء كان خلية أو رقماً مكتوباً يدوياً."
+            }
+        ];
+
+        let currentScore = 0;
+        let currentTab = 0;
+        let currentFontSize = 16;
+        
+        // مصفوفة لتخزين حالة الإجابة لكل سؤال (هل تم حله؟)
+        // لتجنب إعادة الحل عند التنقل بين التبويبات
+        let answeredQuestions = new Array(questions.length).fill(false);
+
+        function switchTab(tabIndex) {
+            currentTab = tabIndex;
+            
+            // تحديث شكل الأزرار
+            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+                if (index === tabIndex) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            
+            // تحديث نطاق الأسئلة المعروض
+            const startQ = tabIndex * 25;
+            const endQ = Math.min((tabIndex + 1) * 25, questions.length);
+            
+            document.getElementById('q-range').innerText = `${startQ + 1}-${endQ}`;
+            
+            renderQuiz(startQ, endQ);
+            
+            // التمرير لأعلى بسلاسة
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuiz(start, end) {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            for (let i = start; i < end; i++) {
+                const qData = questions[i];
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.id = `card-${i}`;
+
+                // تحديد المحاضرة
+                let lectureTitle = "";
+                if(i < 25) lectureTitle = "المحاضرة 1 (Word)";
+                else if(i < 50) lectureTitle = "المحاضرة 2 (Word)";
+                else if(i < 75) lectureTitle = "المحاضرة 3 (Excel)";
+                else lectureTitle = "المحاضرة 4 (Excel)";
+
+                let optionsHTML = '';
+                qData.options.forEach((opt, optIndex) => {
+                    // إذا كان السؤال محلولاً مسبقاً، نعيد حالة الأزرار
+                    let extraClass = '';
+                    if (answeredQuestions[i]) {
+                        if (optIndex === qData.answer) extraClass = 'correct';
+                        // لا يمكننا معرفة الخيار الخاطئ الذي ضغطه المستخدم سابقاً بسهولة هنا، 
+                        // لكن سنكتفي بإظهار الإجابة الصحيحة إذا كان السؤال محلولاً
+                    }
+                    optionsHTML += `<div class="option-btn ${extraClass}" onclick="checkAnswer(${i}, ${optIndex}, this)">${opt}</div>`;
+                });
+
+                // حالة التلميح
+                let hintStyle = answeredQuestions[i] ? 'display:block' : 'display:none';
+
+                card.innerHTML = `
+                    <div class="q-header">
+                        <span class="q-number">#${i + 1}</span>
+                        <span class="lecture-tag">${lectureTitle}</span>
+                    </div>
+                    <div class="question-text">${qData.q}</div>
+                    <div class="options-grid" id="options-${i}">
+                        ${optionsHTML}
+                    </div>
+                    <div class="hint-box" id="hint-${i}" style="${hintStyle}">
+                        <strong>💡 تلميح:</strong> ${qData.hint}
+                    </div>
+                `;
+                container.appendChild(card);
+                
+                // إضافة كلاس 'answered' للحاوية إذا كان السؤال محلولاً
+                if (answeredQuestions[i]) {
+                     document.getElementById(`options-${i}`).classList.add('answered');
+                }
+            }
+        }
+
+        function checkAnswer(questionIndex, selectedOptionIndex, btnElement) {
+            const optionsDiv = document.getElementById(`options-${questionIndex}`);
+            
+            if (optionsDiv.classList.contains('answered')) return;
+            
+            optionsDiv.classList.add('answered');
+            answeredQuestions[questionIndex] = true; // تسجيل أن السؤال تم حله
+            
+            const question = questions[questionIndex];
+            const buttons = optionsDiv.getElementsByClassName('option-btn');
+            const hintBox = document.getElementById(`hint-${questionIndex}`);
+
+            if (selectedOptionIndex === question.answer) {
+                btnElement.classList.add('correct');
+                currentScore++;
+                updateScoreDisplay();
+            } else {
+                btnElement.classList.add('wrong');
+                buttons[question.answer].classList.add('correct');
+            }
+            
+            // إظهار التلميح
+            hintBox.style.display = 'block';
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('current-score').innerText = currentScore;
+        }
+
+        function showResults() {
+            const modal = document.getElementById('results-modal');
+            const percentage = Math.round((currentScore / questions.length) * 100);
+            
+            let message = "";
+            let color = "";
+
+            if (percentage >= 90) { message = "أداء استثنائي! 🌟"; color = "#2ecc71"; }
+            else if (percentage >= 75) { message = "جيد جداً! 👍"; color = "#3498db"; }
+            else if (percentage >= 50) { message = "محاولة جيدة 👊"; color = "#f39c12"; }
+            else { message = "حاول مرة أخرى 📚"; color = "#e74c3c"; }
+
+            document.getElementById('final-percent').innerText = percentage + '%';
+            document.getElementById('final-msg').innerText = message;
+            document.getElementById('final-msg').style.color = color;
+            document.getElementById('final-count').innerText = currentScore;
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('results-modal').style.display = 'none';
+        }
+
+        function adjustFont(change) {
+            currentFontSize += change;
+            if (currentFontSize < 14) currentFontSize = 14;
+            if (currentFontSize > 22) currentFontSize = 22;
+            // التعديل على الجذر (html) ليؤثر على وحدات rem
+            document.documentElement.style.fontSize = currentFontSize + 'px';
+        }
+
+        // تشغيل الاختبار (التبويب الأول افتراضياً)
+        switchTab(0);
+
+    </script>
+</body>
+</html>
