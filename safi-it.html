@@ -118,7 +118,7 @@
     header h1 { margin: 0; font-size: 1.8rem; font-weight: 900; }
     header p { opacity: 0.9; font-size: 0.95rem; margin-top: 8px; font-weight: 600; }
 
-مُحمد صافي 🇸🇾, [08/01/2026 10:34 م]
+
 .btn-tool {
         background: var(--tab-inactive); color: var(--text-color); border: none;
         padding: 8px 12px; border-radius: 12px; cursor: pointer;
@@ -186,7 +186,6 @@
     .semester-content { display: none; }
     .semester-content.active { display: block; }
 
-مُحمد صافي 🇸🇾, [08/01/2026 10:34 م]
 /* --- تنسيق قسم الروابط الرسمي الجديد --- */
     .social-section {
         max-width: 92%; margin: 30px auto;
@@ -213,12 +212,39 @@
     .social-icon { font-size: 1.5rem; margin-bottom: 5px; }
     .social-btn:active { transform: scale(0.95); }
 
+
     @media (max-width: 480px) { .social-section { padding: 15px; } .social-btn { font-size: 0.75rem; } }
+
+
+    </head>
+<body id="app-body">
+ 
+    <nav class="top-nav">
+        <div class="nav-logo">
+            <img src="logo.png?v=4" alt="logo" class="corner-logo-img">
+            IT HOMS
+        </div>
+        <div>
+            <button class="btn-tool" onclick="toggleTheme()">🌓</button>
+            <button class="btn-tool" onclick="changeFont(1)">A+</button>
+            <button class="btn-tool" onclick="changeFont(-1)">A-</button>
+        </div>
+    </nav>
+    
+
+    
 </style>
     
 </head>
 <body id="app-body">
 
+
+    
+    <div class="main-banner">
+    <img src="logo.paner.png?v=2" alt="شعار الاتحاد" class="banner-photo">
+</div> 
+
+    
     <nav class="top-nav">
         <div class="nav-logo">
             <img src="logo.png?v=4" alt="logo" class="corner-logo-img">
@@ -379,6 +405,7 @@
     </script>
 </body>
 </html>
+
 
 
 
