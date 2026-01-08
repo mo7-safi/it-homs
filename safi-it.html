@@ -43,6 +43,46 @@
             --tab-inactive: #e9ecef;
             --disclaimer-bg: #fff9e6;
             --disclaimer-text: #856404;
+
+/* 1. تنسيق اللوجو الثابت في الزاوية العلوية اليمنى */
+.corner-logo {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 60px; /* حجم اللوجو في الزاوية */
+    height: auto;
+    z-index: 1000;
+}
+
+/* 2. إضافة اللوجو الشفاف خلف "المكتبة الرقمية" */
+.header {
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px; /* حجم اللوجو خلف النص */
+    height: 220px;
+    background-image: url('logo.png'); /* يستخدم الملف الذي رفعته للتو */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.15; /* درجة الشفافية: 0.15 تعني فاهي جداً */
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ضمان ظهور النص فوق اللوجو الشفاف */
+.header h1, .header p {
+    position: relative;
+    z-index: 1;
+}
+            
         }
 
         [data-theme="dark"] {
@@ -72,6 +112,8 @@
         }
 
         body {
+<img src="logo.png" alt="University Logo" class="corner-logo">
+            
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -383,4 +425,5 @@
         }
     </script>
 </body>
+
 </html>
