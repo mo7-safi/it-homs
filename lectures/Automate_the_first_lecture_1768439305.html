@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاضرة الأولى - رياضيات | اختبار المصفوفات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #050505; /* أسود عميق */
+            --card-bg: #121212;
+            --text-color: #e0e0e0;
+            --primary-accent: #bb86fc; /* نهدي فاتح */
+            --secondary-accent: #03dac6; /* أزرق سماوي/سيان */
+            --correct-color: #00e676;
+            --wrong-color: #cf6679;
+            --border-color: #333;
+            --font-main: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        /* تنسيق الهيدر وأدوات التحكم */
+        header {
+            background: rgba(18, 18, 18, 0.95);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--primary-accent);
+            box-shadow: 0 4px 20px rgba(187, 134, 252, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button.control-btn {
+            background: transparent;
+            border: 1px solid var(--secondary-accent);
+            color: var(--secondary-accent);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: 0.3s;
+        }
+
+        button.control-btn:hover {
+            background: var(--secondary-accent);
+            color: #000;
+        }
+
+        /* صندوق الملاحظة التحذيرية */
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 5px;
+            font-size: 0.95rem;
+            color: #ffca28;
+            width: 90%;
+        }
+
+        /* حاوية الأسئلة */
+        .quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding-bottom: 60px; /* مساحة للفوتر */
+            width: 95%;
+        }
+
+        .question-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-accent), var(--secondary-accent));
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: #1f1f1f;
+            border: 1px solid #333;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: var(--text-color);
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--secondary-accent);
+            background: #2a2a2a;
+        }
+
+        .option-btn.correct {
+            background: rgba(0, 230, 118, 0.15);
+            border-color: var(--correct-color);
+            color: var(--correct-color);
+        }
+
+        .option-btn.wrong {
+            background: rgba(207, 102, 121, 0.15);
+            border-color: var(--wrong-color);
+            color: var(--wrong-color);
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            display: none;
+            border-top: 2px solid var(--secondary-accent);
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            color: var(--secondary-accent);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* الفوتر */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid #333;
+            color: #777;
+            font-size: 0.9rem; /* 14px تقريبا */
+            background-color: var(--bg-color);
+        }
+
+        /* الوضع النهاري (اختياري عند التبديل) */
+        body.light-mode {
+            --bg-color: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+        }
+        
+        /* تنسيق المعادلات */
+        mjx-container {
+            font-size: 110% !important;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1rem; }
+            .question-text { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>المحاضرة الأولى - رياضيات</h1>
+    <div class="controls">
+        <button class="control-btn" onclick="toggleTheme()">🌓 مظهر</button>
+        <button class="control-btn" onclick="adjustFontSize(1)">A+</button>
+        <button class="control-btn" onclick="adjustFontSize(-1)">A-</button>
+    </div>
+</header>
+
+<div class="warning-box">
+    ⚠️ <strong>ملاحظة:</strong> هذه الأسئلة تدريبية وليست دورات، وأسئلة الامتحان قد تكون أبسط بكثير أو أصعب.
+</div>
+
+<div class="quiz-container" id="quiz-container">
+    </div>
+
+<footer>
+    تم تطوير هذا الموقع بواسطة محمد صافي
+</footer>
+
+<script>
+    // بيانات الأسئلة مستخرجة بدقة من الملف المرفق
+    const questions = [
+        {
+            id: 1,
+            text: "إذا كانت المصفوفة \\(A=\\begin{bmatrix}2 & x+1 \\\\ 5 & 4\\end{bmatrix}\\) متناظرة، فما هي قيمة \\(x\\)؟",
+            options: ["4", "-6", "5", "1"],
+            correctIndex: 0,
+            hint: "في المصفوفة المتناظرة، يجب أن يتحقق الشرط \\(a_{ij}=a_{ji}\\). هنا يجب أن يكون \\(x+1=5\\)."
+        },
+        {
+            id: 2,
+            text: "إذا كانت A مصفوفة من المرتبة \\((3\\times4)\\) و B مصفوفة من المرتبة \\((4\\times2)\\)، فما هي مرتبة المصفوفة الناتجة عن حاصل الضرب \\(A.B\\)؟",
+            options: ["\\((3\\times4)\\)", "\\((4\\times4)\\)", "الضرب غير ممكن", "\\((3\\times2)\\)"],
+            correctIndex: 3,
+            hint: "مرتبة مصفوفة حاصل الضرب تكون عدد أسطر المصفوفة الأولى وعدد أعمدة المصفوفة الثانية."
+        },
+        {
+            id: 3,
+            text: "ما هو نوع المصفوفة \\(A=\\begin{bmatrix}0 & 3 & -5 \\\\ -3 & 0 & 1 \\\\ 5 & -1 & 0\\end{bmatrix}\\)؟",
+            options: ["متناظرة تخالفياً", "مثلثية سفلى", "متناظرة", "قطرية"],
+            correctIndex: 0,
+            hint: "عناصر القطر الرئيسي أصفار، وكل عنصر \\(a_{ij}\\) يساوي سالب نظيره \\((a_{ji})\\)."
+        },
+        {
+            id: 4,
+            text: "إذا كانت \\(A=\\begin{bmatrix}1 & 2 \\\\ 3 & 4\\end{bmatrix}\\) و \\(B=\\begin{bmatrix}0 & 1 \\\\ 1 & 0\\end{bmatrix}\\)، فما هي قيمة \\(A.B\\)؟",
+            options: ["\\(\\begin{bmatrix}3 & 4 \\\\ 1 & 2\\end{bmatrix}\\)", "\\(\\begin{bmatrix}1 & 3 \\\\ 4 & 4\\end{bmatrix}\\)", "\\(\\begin{bmatrix}2 & 1 \\\\ 4 & 3\\end{bmatrix}\\)", "\\(\\begin{bmatrix}0 & 2 \\\\ 3 & 0\\end{bmatrix}\\)"],
+            correctIndex: 2,
+            hint: "يتم حساب كل عنصر في مصفوفة الناتج بضرب عناصر صف من A في عناصر عمود من B وجمع النواتج."
+        },
+        {
+            id: 5,
+            text: "ما هي الخاصية التي لا تنطبق دائماً على ضرب المصفوفات؟",
+            options: ["الخاصية التجميعية \\((A(BC)=(AB)C)\\)", "شرط توافق الأبعاد للضرب", "الخاصية التبديلية \\((A.B=B.A)\\)", "الخاصية التوزيعية \\((A(B+C)=AB+AC)\\)"],
+            correctIndex: 2,
+            hint: "ضرب المصفوفات بشكل عام غير تبديلي، أي أن A.B لا يساوي بالضرورة B.A."
+        },
+        {
+            id: 6,
+            text: "إذا كانت A مصفوفة مربعة، فإن المصفوفة \\(A-A^{T}\\) هي دائماً:",
+            options: ["المصفوفة الصفرية", "مصفوفة متناظرة تخالفياً", "مصفوفة متناظرة", "مصفوفة قطرية"],
+            correctIndex: 1,
+            hint: "الفرق بين أي مصفوفة ومنقولها ينتج مصفوفة يكون فيها \\(a_{ij}-a_{ji}=-(a_{ji}-a_{ij})\\) وعناصر قطرها الرئيسي أصفار."
+        },
+        {
+            id: 7,
+            text: "ما هو أثر (Trace) المصفوفة \\(A=\\begin{bmatrix}5 & 1 & 0 \\\\ -2 & -3 & 7 \\\\ 4 & 9 & 1\\end{bmatrix}\\)؟",
+            options: ["21", "-15", "3", "1"],
+            correctIndex: 2,
+            hint: "أثر المصفوفة هو مجموع عناصر قطرها الرئيسي، أي \\(5+(-3)+1=3\\)."
+        },
+        {
+            id: 8,
+            text: "إذا كانت A مصفوفة هرميتية، فما هي طبيعة عناصر قطرها الرئيسي؟",
+            options: ["أعداد عقدية (مركبة) أيا كانت", "جميعها أصفار", "أعداد تخيلية بحتة أو أصفار", "أعداد حقيقية"],
+            correctIndex: 3,
+            hint: "من شروط المصفوفة الهرميتية أن \\(a_{ii}=\\overline{a_{ii}}\\) وهو ما لا يتحقق إلا إذا كان الجزء التخيلي للعدد يساوي صفراً."
+        },
+        {
+            id: 9,
+            text: "ما هو منقول المصفوفة المثلثية العليا؟",
+            options: ["مصفوفة مثلثية سفلى", "مصفوفة متناظرة", "مصفوفة قطرية", "مصفوفة مثلثية عليا"],
+            correctIndex: 0,
+            hint: "عند تبديل الأسطر بالأعمدة، فإن العناصر الصفرية التي كانت تحت القطر الرئيسي تصبح فوق القطر الرئيسي."
+        },
+        {
+            id: 10,
+            text: "أي من المصفوفات التالية هي مصفوفة سلمية (Scalar Matrix)؟",
+            options: ["\\(\\begin{bmatrix}1 & 0 & 0 \\\\ 0 & 1 & 0 \\\\ 0 & 0 & 1\\end{bmatrix}\\)", "\\(\\begin{bmatrix}7 & 0 & 0 \\\\ 0 & 7 & 0 \\\\ 0 & 0 & 7\\end{bmatrix}\\)", "\\(\\begin{bmatrix}5 & 0 & 0 \\\\ 0 & 2 & 0 \\\\ 0 & 0 & 3\\end{bmatrix}\\)", "\\(\\begin{bmatrix}7 & 1 & 1 \\\\ 1 & 7 & 1\\end{bmatrix}\\)"],
+            correctIndex: 1,
+            hint: "المصفوفة السلمية هي مصفوفة قطرية جميع عناصر قطرها الرئيسي متساوية."
+        },
+        {
+            id: 11,
+            text: "إذا كانت \\(A=\\begin{bmatrix}1 & 2-3i \\\\ 2+3i & 0\\end{bmatrix}\\)، فما هي العلاقة بين A ومنقول المرافق لها \\(A^{H}\\) (أي \\(\\overline{A}^T\\))؟",
+            options: ["\\(A=A^{H}\\)", "\\(A=\\overline{A}\\)", "\\(A=A^{T}\\)", "\\(A=-A^{H}\\)"],
+            correctIndex: 0,
+            hint: "عناصر القطر الرئيسي حقيقية والعنصر \\(a_{21}\\) هو مرافق العنصر \\(a_{12}\\) مما يحقق شرط المصفوفة الهرميتية."
+        },
+        {
+            id: 12,
+            text: "إذا كانت \\(A=[a_{ij}]\\) مصفوفة من المرتبة \\(2\\times3\\) حيث \\(a_{ij}=i-j\\). ما هي المصفوفة A؟",
+            options: ["\\(\\begin{bmatrix}0 & -1 \\\\ 1 & 0 \\\\ 2 & 1\\end{bmatrix}\\)", "\\(\\begin{bmatrix}2 & 3 & 4 \\\\ 3 & 4 & 5\\end{bmatrix}\\)", "\\(\\begin{bmatrix}0 & 1 & 2 \\\\ -1 & 0 & 1\\end{bmatrix}\\)", "\\(\\begin{bmatrix}0 & -1 & -2 \\\\ 1 & 0 & -1\\end{bmatrix}\\)"],
+            correctIndex: 3,
+            hint: "بتطبيق القاعدة: \\(a_{11}=0, a_{12}=-1, a_{13}=-2\\) وهكذا."
+        },
+        {
+            id: 13,
+            text: "إذا كانت A و B مصفوفتين بحيث A.B و B.A كلاهما معرفان، ونتج \\(A.B=B.A\\) فإننا نقول عن المصفوفتين:",
+            options: ["متساويتان", "إحداهما هي منقول الأخرى", "متوافقتان للضرب ومتبادلتان فيه", "متوافقتان للضرب وغير متبادلتين فيه"],
+            correctIndex: 2,
+            hint: "كون الجداءين معرفين يعني أنهما متوافقتان للضرب، وكونهما متساويين يعني أنهما متبادلتان."
+        },
+        {
+            id: 14,
+            text: "ما هو منقول المصفوفة \\((A.B.C)^{T}\\)؟",
+            options: ["\\(A.B.C\\)", "\\(A^{T}.B^{T}.C^{T}\\)", "\\(C^{T}.B^{T}.A^{T}\\)", "\\((C.B.A)^{T}\\)"],
+            correctIndex: 2,
+            hint: "من خواص المنقول أن منقول حاصل ضرب عدة مصفوفات يساوي حاصل ضرب مناقيلها مع عكس الترتيب."
+        },
+        {
+            id: 15,
+            text: "إذا كانت \\(A=\\begin{bmatrix}x & 3 \\\\ 0 & y-1\\end{bmatrix}\\) و \\(B=\\begin{bmatrix}2 & z \\\\ w & 5\\end{bmatrix}\\) و \\(A=B\\)، ما هي قيم \\(x, y, z, w\\) على الترتيب؟",
+            options: ["3, 6, 2, 0", "2, 6, 3, 0", "2, 6, 0, 3", "2, 5, 3, 0"],
+            correctIndex: 1,
+            hint: "لتساوي مصفوفتين، يجب أن تتساوى العناصر المتقابلة: \\(x=2, z=3, w=0, y-1=5 \\Rightarrow y=6\\)."
+        },
+        {
+            id: 16,
+            text: "ما هو التعريف الدقيق للمصفوفة المثلثية العليا؟",
+            options: ["مصفوفة مربعة تكون جميع عناصرها الواقعة تحت القطر الرئيسي أصفاراً (\\(a_{ij}=0\\) عندما \\(i>j\\))", "مصفوفة مربعة تكون جميع عناصرها خارج القطر الرئيسي أصفاراً", "مصفوفة مربعة تكون جميع عناصرها الواقعة فوق القطر الرئيسي أصفاراً", "مصفوفة مربعة تكون جميع عناصرها تحت القطر الثانوي أصفاراً"],
+            correctIndex: 0,
+            hint: "هذا هو التعريف الرسمي للمصفوفة المثلثية العليا."
+        },
+        {
+            id: 17,
+            text: "إذا كانت \\(A.B=0\\) (المصفوفة الصفرية)، فماذا يمكننا أن نستنتج؟",
+            options: ["يجب أن تكون A هي المصفوفة الصفرية", "يجب أن تكون B هي المصفوفة الصفرية", "ليس بالضرورة أن تكون A أو B هي المصفوفة الصفرية", "يجب أن تكون A و B كلتاهما هما المصفوفة الصفرية"],
+            correctIndex: 2,
+            hint: "على عكس ضرب الأعداد الحقيقية، يمكن أن يكون حاصل ضرب مصفوفتين غير صفريتين هو المصفوفة الصفرية."
+        },
+        {
+            id: 18,
+            text: "إذا كانت المصفوفة \\(A=\\begin{bmatrix}3i & 1+i \\\\ -1+i & 0\\end{bmatrix}\\) هرميتية تخالفياً، فما هي الخاصية التي يجب أن تتحقق؟",
+            options: ["\\(a_{ij}=a_{ji}\\)", "\\(a_{ij}=\\overline{a_{ji}}\\)", "\\(a_{ij}=-\\overline{a_{ji}}\\)", "\\(a_{ij}=-a_{ji}\\)"],
+            correctIndex: 2,
+            hint: "هذا هو التعريف الرياضي للمصفوفة الهرميتية التخالفية."
+        },
+        {
+            id: 19,
+            text: "لدينا مصفوفتان A و B. إذا كان الجداء A.B معرفاً، فهل هذا يعني بالضرورة أن الجداء B.A معرفاً؟",
+            options: ["نعم، دائماً", "لا إلا إذا كانت إحداهما مصفوفة واحدية", "لا، ليس بالضرورة", "نعم، إذا كانت A و B من نفس المرتبة"],
+            correctIndex: 2,
+            hint: "شرط توافق الأبعاد للضرب غير تبديلي إلا إذا كانت المصفوفتان مربعتين."
+        },
+        {
+            id: 20,
+            text: "إذا كانت \\(A=\\begin{bmatrix}2 & 1 \\\\ 4 & 2\\end{bmatrix}\\) و \\(B=\\begin{bmatrix}1 & -2 \\\\ -2 & 4\\end{bmatrix}\\). ما هو ناتج \\(A.B\\)؟",
+            options: ["\\(\\begin{bmatrix}0 & 0 \\\\ 0 & 0\\end{bmatrix}\\)", "\\(\\begin{bmatrix}-2 & 0 \\\\ 8 & 0\\end{bmatrix}\\)", "\\(\\begin{bmatrix}2 & -2 \\\\ -8 & 8\\end{bmatrix}\\)", "مصفوفة واحدية"],
+            correctIndex: 0,
+            hint: "الناتج هو المصفوفة الصفرية، وهذا مثال يوضح أن حاصل ضرب مصفوفتين غير صفريتين يمكن أن يكون صفرياً."
+        },
+        {
+            id: 21,
+            text: "ما هو منقول المصفوفة العمودية \\(A=\\begin{bmatrix}a \\\\ b \\\\ c\\end{bmatrix}\\)؟",
+            options: ["مصفوفة سطرية \\(\\begin{bmatrix}a & b & c\\end{bmatrix}\\)", "المصفوفة نفسها", "مصفوفة قطرية", "مصفوفة صفرية"],
+            correctIndex: 0,
+            hint: "عند أخذ المنقول، يتحول العمود الوحيد إلى سطر وحيد."
+        },
+        {
+            id: 22,
+            text: "أي من العبارات التالية تصف المصفوفة القطرية بشكل صحيح؟",
+            options: ["جميع عناصرها متساوية", "جميع عناصر قطرها الرئيسي متساوية", "جميع عناصرها أصفار", "هي مصفوفة مثلثية عليا وسفلى في نفس الوقت"],
+            correctIndex: 3,
+            hint: "لكي تكون مثلثية عليا وسفلى معاً، يجب أن تكون كل العناصر خارج القطر الرئيسي أصفاراً."
+        },
+        {
+            id: 23,
+            text: "إذا كانت \\(A=\\begin{bmatrix}2 & 0 \\\\ 0 & 3\\end{bmatrix}\\)، فما هي قيمة \\((A^{T})^{T}\\)؟",
+            options: ["\\(\\begin{bmatrix}2 & 0 \\\\ 0 & 3\\end{bmatrix}\\)", "\\(\\begin{bmatrix}0 & 2 \\\\ 3 & 0\\end{bmatrix}\\)", "مصفوفة واحدية", "\\(\\begin{bmatrix}3 & 0 \\\\ 0 & 2\\end{bmatrix}\\)"],
+            correctIndex: 0,
+            hint: "من خواص المنقول أن \\((A^{T})^{T}=A\\)."
+        },
+        {
+            id: 24,
+            text: "إذا كانت لدينا مصفوفتان A و B من نفس المرتبة، فإن \\((A+B)^{T}\\) تساوي:",
+            options: ["\\(B^{T}A^{T}\\)", "\\(B^{T}+A^{T}.B\\)", "\\(A^{T}B^{T}\\)", "\\(A^{T}+B^{T}\\)"],
+            correctIndex: 3,
+            hint: "من خواص المنقول أنه يتوزع على عملية الجمع."
+        },
+        {
+            id: 25,
+            text: "في المصفوفة المربعة \\(A=[a_{ij}]\\) من المرتبة \\(4\\times4\\)، أي من العناصر التالية يقع على القطر الثانوي؟",
+            options: ["\\(a_{12}\\)", "\\(a_{22}\\)", "\\(a_{32}\\)", "\\(a_{44}\\)"],
+            correctIndex: 2,
+            hint: "في القطر الثانوي لمصفوفة من المرتبة \\(n\\)، يكون مجموع الدليلين \\(i+j\\) مساوياً لـ \\(n+1\\). هنا \\(3+2=5\\)."
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+
+    function renderQuestions() {
+        quizContainer.innerHTML = '';
+        questions.forEach((q, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            
+            let optionsHtml = '';
+            q.options.forEach((opt, i) => {
+                optionsHtml += `<button class="option-btn" onclick="checkAnswer(this, ${index}, ${i})">${opt}</button>`;
+            });
+
+            card.innerHTML = `
+                <div class="question-text">${index + 1}. ${q.text}</div>
+                <div class="options-grid" id="options-${index}">
+                    ${optionsHtml}
+                </div>
+                <div class="feedback-box" id="feedback-${index}">
+                    <span class="feedback-title">💡 تلميح / شرح:</span>
+                    <span class="feedback-content">${q.hint}</span>
+                </div>
+            `;
+            quizContainer.appendChild(card);
+        });
+        // إعادة تفعيل MathJax للمعادلات الجديدة
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function checkAnswer(btn, questionIndex, optionIndex) {
+        const question = questions[questionIndex];
+        const optionsDiv = document.getElementById(`options-${questionIndex}`);
+        const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+        const buttons = optionsDiv.getElementsByClassName('option-btn');
+
+        // منع الإجابة مرة أخرى
+        if (optionsDiv.classList.contains('answered')) return;
+        optionsDiv.classList.add('answered');
+
+        if (optionIndex === question.correctIndex) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('wrong');
+            // تلوين الإجابة الصحيحة
+            buttons[question.correctIndex].classList.add('correct');
+        }
+
+        // إظهار التلميح
+        feedbackDiv.style.display = 'block';
+    }
+
+    // تبديل المظهر
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+    }
+
+    // التحكم بحجم الخط
+    let currentFontSize = 16;
+    function adjustFontSize(change) {
+        currentFontSize += change;
+        if (currentFontSize < 12) currentFontSize = 12;
+        if (currentFontSize > 24) currentFontSize = 24;
+        document.body.style.fontSize = currentFontSize + 'px';
+    }
+
+    // التشغيل الأولي
+    window.onload = renderQuestions;
+</script>
+
+</body>
+</html>
